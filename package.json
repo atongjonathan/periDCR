@@ -13,6 +13,7 @@
     "@nordhealth/css": "^3.2.1",
     "@nordhealth/react": "^3.17.0",
     "@nordhealth/themes": "^8.0.3",
+    "axios": "^1.7.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2"

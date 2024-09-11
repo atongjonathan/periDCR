@@ -1,18 +1,29 @@
 import { React, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import "./App.css";
 import { Login } from "./components/Login";
+import { Home } from "./components/Home";
 import { SignUp } from "./components/SignUp";
+import { PrivateRoute } from "./utils/PrivateRoute"
+import { AuthProvider } from "./context/AuthContext";
+
+
 function App() {
   return (
     <>
-      <BrowserRouter>{/* Decides what component to load based on the url */}
-        <Routes>
-          <Route path="/login" element={<Login />}></Route>
-          <Route path="/signup" element={<SignUp />}></Route>
-        </Routes>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Home is child of PrivateRoute of which is a placeholder element for validation */}
+            <Route path="/" element={<PrivateRoute isAutheniticated={true}><Home /></PrivateRoute>}></Route>
 
-      </BrowserRouter>
+            <Route path="/login" element={<Login />}></Route>
+            <Route path="/signup" element={<SignUp />}></Route>
+          </Routes>
+
+        </BrowserRouter>
+      </AuthProvider>
+
     </>
 
 
