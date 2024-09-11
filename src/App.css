@@ -1,5 +1,7 @@
 .stack {
   inline-size: 90%;
   max-inline-size: 340px;
-  margin: var(--n-space-xl) auto;
+  margin: 0 auto;
+  margin-top: var(--n-space-xl);
+  background-color: var(--n-color-background);
 }
