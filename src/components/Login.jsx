@@ -66,7 +66,7 @@ export function Login() {
 
             
             <main className="n-reset n-stack-horizontal">
-                <Stack className="stack">
+                <Stack className="login_stack">
                     <Card padding="l">
                         <h2 slot="header">Sign in to periDCR</h2>
                         <form action="#" onSubmit={handleSubmit}>
@@ -74,9 +74,9 @@ export function Login() {
                                 <Input
                                     label="Username"
                                     expand
-                                    type="email"
-                                    placeholder="user@example.com"
+                                    type="text"
                                     {...username.inputProps}
+                                    required
                                 ></Input>
 
                                 <div className="password">
@@ -86,6 +86,7 @@ export function Login() {
                                         type="password"
                                         placeholder="••••••••"
                                         {...password.inputProps}
+                                        required
                                     ></Input>
                                     
                                     {/* <a href="#forgot">Forgot password?</a> */}

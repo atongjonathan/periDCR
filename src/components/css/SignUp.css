@@ -1,0 +1,14 @@
+.signup_stack {
+    inline-size: 90%;
+    max-inline-size: 560px;
+    margin: 0 auto !important;
+    margin-top: var(--n-space-l) !important;
+    background-color: var(--n-color-background);
+  }
+  .role
+  {
+    margin-left: 105px
+    /* width: 200px; */
+    /* background-color: yellow; */
+  }
+  

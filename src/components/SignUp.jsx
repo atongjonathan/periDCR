@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Card, Stack, Input, Button, Select } from "@nordhealth/react";
 import { Link } from 'react-router-dom'
+import "./css/SignUp.css";
+
 
 function useField(name, initialValue = "") {
     const [value, setValue] = useState(initialValue);
@@ -55,10 +57,10 @@ export function SignUp() {
         setGroup(value)
         console.log(value, value == 'Administrator')
         if (value == 'Administrator') {
-            setRoles(["Admin", "Health Records Officer"])
+            setRoles(["", "Admin", "Health Records Officer"])
         }
         else if (value == 'Clinician') {
-            setRoles(["Medical Officer", "Clinical Officer", "Nursing Officer", "Pharmacist", "Radiologist", "Lab Technician"])
+            setRoles(["", "Medical Officer", "Clinical Officer", "Nursing Officer", "Pharmacist", "Radiologist", "Lab Technician"])
         }
 
     }
@@ -72,7 +74,7 @@ export function SignUp() {
             vGroup.focus();
         }
         if (!role.valid) {
-            role.setError("Please select a group");
+            role.setError("Please select a role");
             role.focus();
         }
         if (username.valid && password.valid) {
@@ -87,8 +89,7 @@ export function SignUp() {
             password.setError("Please confirm your password");
             password.focus();
         }
-        if ( password.value != confirm_password.value)
-        {
+        if (password.value != confirm_password.value) {
             console.log(password, confirm_password)
             confirm_password.setError("Passwords do not match");
             confirm_password.focus();
@@ -112,46 +113,54 @@ export function SignUp() {
 
 
             <main className="n-reset n-stack-horizontal">
-                <Stack className="stack">
+                <Stack className="signup_stack">
 
                     <Card padding="l">
                         <h2 slot="header">Sign up to periDCR</h2>
                         <form action="#" onSubmit={handleSubmit}>
-                            <Stack>
-                                <Select label="Group" name="group" value={group} expand onInput={handleInputChange} required {...group.inputProps}>
+                            <Stack direction="horizontal" wrap>
+                                <Select className="select" label="Group" name="group" value={group} onInput={handleInputChange} required {...group.inputProps}>
                                     <option value="">Select Group</option>
                                     <option value="Administrator">Administrator</option>
                                     <option value="Clinician">Clinician</option>
 
                                 </Select>
-                                <Select label="Role" value="Select Role ..." name="role" expand required {...role.inputProps}>
-                                    {
-                                        roles.length > 0 ? roles.map((role) => (
-                                            <option key={role} value={role}>{role}</option>
+                                <div className="role">
+                                    <Select className="role" label="Role" name="role" required {...role.inputProps}>
+                                        {
+                                            roles.length > 0 ? roles.map((role) => (
+                                                <option key={role} value={role}>{role ? role : "Select Role"}</option>
 
-                                        )) : (<option value=""></option>)
+                                            )) : (<option value="">Select Group first</option>)
 
-                                    }
+                                        }
 
 
-                                </Select>
+                                    </Select>
+                                </div>
+
                                 <Input
                                     label="First Name"
-                                    expand
                                     type="text"
                                     {...first_name.inputProps}
                                     required
                                 ></Input>
                                 <Input
                                     label="Last Name"
-                                    expand
                                     type="text"
                                     {...last_name.inputProps}
 
                                 ></Input>
                                 <Input
                                     label="Username"
-                                    expand
+
+                                    type="text"
+                                    {...username.inputProps}
+                                    required
+                                ></Input>
+                                <Input
+                                    label="Email"
+
                                     type="email"
                                     placeholder="user@example.com"
                                     {...username.inputProps}
@@ -161,7 +170,6 @@ export function SignUp() {
                                 <div className="password">
                                     <Input
                                         label="Password"
-                                        expand
                                         type="password"
                                         placeholder="••••••••"
                                         {...password.inputProps}
@@ -172,25 +180,26 @@ export function SignUp() {
                                 <div className="password">
                                     <Input
                                         label="Confirm Password"
-                                        expand
                                         type="password"
                                         placeholder="••••••••"
                                         {...confirm_password.inputProps}
                                         required
                                     ></Input>
                                 </div>
-                                <Button type="submit" expand variant="primary">
-                                    Sign Up
-                                </Button>
-
+                                <Stack justifyContent="center" alignItems="center">
+                                    <Button type="submit" variant="primary">
+                                        Sign Up
+                                    </Button>
+                                </Stack>
+                                <div>
+                                    Have an account? <Link to="/login">Log In</Link>.
+                                </div>
 
                             </Stack>
                         </form>
                     </Card>
 
-                    <Card className="n-align-center">
-                        Have an account ? <Link to="/login">Log In</Link>.
-                    </Card>
+
                 </Stack>
             </main>
 

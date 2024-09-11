@@ -2,12 +2,12 @@
   background-color: var(--n-color-surface);
 
 }
-.stack
-{
+.login_stack {
+  inline-size: 90%;
+  max-inline-size: 340px;
   margin: var(--n-space-xxl) auto;
-
+  background-color: var(--n-color-background);
 }
-
 .password {
   position: relative;
 }
