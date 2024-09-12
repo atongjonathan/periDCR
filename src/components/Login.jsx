@@ -76,8 +76,7 @@ export function Login() {
 
     const navigate = useNavigate();
 
-    const { saveAuthTokens } = useContext(AuthContext)
-    const { user } = useContext(AuthContext)
+    const { saveAuthTokens, user } = useContext(AuthContext)
 
 
 

@@ -4,8 +4,7 @@ import AuthContext from '../context/AuthContext'
 import { Button } from '@nordhealth/react'
 
 export const Home = () => {
-  let { user } = useContext(AuthContext);
-  let { logoutUser } = useContext(AuthContext);
+  let { user, logoutUser } = useContext(AuthContext);
   useEffect(() => {
     document.title = 'Home';
   })
