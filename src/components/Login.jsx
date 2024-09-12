@@ -40,8 +40,10 @@ function useField(name, initialValue = "") {
 
 // Function to handle login requests
 async function loginUser(username, password) {
+    const backendBaseUrl = import.meta.env.VITE_BACKEND_URL
+    const tokenUrl =  `${backendBaseUrl}/api/token/`
     const reqOptions = {
-        url: 'http://127.0.0.1:8000/api/token/',
+        url:tokenUrl,
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -54,10 +56,10 @@ async function loginUser(username, password) {
 
     try {
         const response = await axios.request(reqOptions);
+        // const response = await fetch(tokenUrl, reqOptions)
         return response;
     } catch (error) {
-        console.log(error);
-        return error.response;
+        return error;
     }
 }
 
@@ -70,6 +72,7 @@ export function Login() {
     const [toastMessage, setToastMessage] = useState('');
     const [toastVariant, setToastVariant] = useState('');
     const [showToast, setShowToast] = useState(false); // New state to control toast visibility
+    const [loading, setLoading] = useState(false)
 
     const navigate = useNavigate();
     const authContext = useContext(AuthContext)
@@ -91,20 +94,29 @@ export function Login() {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        
 
         if (username.valid && password.valid) {
+            setLoading(true)
             const response = await loginUser(username.value, password.value);
+            setLoading(false);
+            if (response.status) {
+                if (response.status === 200) {
+                    // authContext.setUser(response.data)
+                    // console.log(authContext.user)
+                    navigate("/");
 
-            if (response.status === 200) {
-                // authContext.setUser(response.data)
-                // console.log(authContext.user)
-                navigate("/");
+                } else {
+                    setToastVariant("danger");
+                    setToastMessage("Invalid Credentials");
 
-            } else {
-                setToastVariant("danger");
-                setToastMessage("Invalid Credentials");
-
+                }
             }
+            else {
+                setToastVariant("danger");
+                setToastMessage("Something went wrong");
+            }
+
             setShowToast(true); // Trigger showing the toast
         } else {
             if (!password.valid) {
@@ -150,7 +162,7 @@ export function Login() {
                                         required
                                     />
                                 </div>
-                                <Button type="submit" expand variant="primary">
+                                <Button type="submit" loading={loading} expand variant="primary">
                                     Sign in
                                 </Button>
                             </Stack>
