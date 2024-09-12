@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Card, Stack, Input, Button, Select } from "@nordhealth/react";
-import { Link } from 'react-router-dom'
+import { Card, Stack, Input, Button, Select, ToastGroup, Toast } from "@nordhealth/react";
+import { Link, useNavigate } from 'react-router-dom'
 import "./css/SignUp.css";
-
-
+import axios from "axios";
 function useField(name, initialValue = "") {
     const [value, setValue] = useState(initialValue);
     const [error, setError] = useState();
@@ -38,16 +37,25 @@ function useField(name, initialValue = "") {
 
 
 export function SignUp() {
+    const vGroup = useField("group");
+    const role = useField("role");
     const username = useField("username");
     const first_name = useField("first_name");
     const last_name = useField("last_name");
-    const password = useField("password");
-    const vGroup = useField("group");
-    const role = useField("role");
-    const confirm_password = useField("confirm_password");
+    const email = useField("email");
+    const password1 = useField("password");
+    const password2 = useField("confirm_password");
 
     const [roles, setRoles] = useState([])
     const [group, setGroup] = useState("")
+
+    const [loading, setLoading] = useState(false)
+    const [showToast, setShowToast] = useState(false);
+    const [toastVariant, setToastVariant] = useState('');
+    const [toastMessage, setToastMessage] = useState('');
+
+    let navigate = useNavigate();
+
 
 
 
@@ -65,61 +73,86 @@ export function SignUp() {
 
     }
 
+    async function submitForm(formObject) {
+
+        const backendBaseUrl = import.meta.env.VITE_BACKEND_URL
+        const signUpUrl = `${backendBaseUrl}/api/create-user`
+        const reqOptions = {
+            url: signUpUrl,
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: formObject,
+        };
+
+        try {
+            const response = await axios.request(reqOptions);
+            // const response = await fetch(tokenUrl, reqOptions)
+            return response;
+        } catch (error) {
+            return error.response;
+        }
+    }
 
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
-        if (!vGroup.valid) {
-            vGroup.setError("Please select a group");
-            vGroup.focus();
+        setLoading(true)
+        const formData = new FormData(e.target);
+
+        // Convert FormData to an object
+        const formObject = Object.fromEntries(formData.entries());
+
+        const response = await submitForm(formObject);
+        setLoading(false);
+        if (response.status) {
+            if (response.status === 201) {
+                navigate("/login");
+                setToastVariant("default");
+                setToastMessage("SignUp Successful");
+                setShowToast(true); 
+
+            } else if (response.status === 400) {
+                let errors = response.data.errors
+                if (errors.username) username.setError(errors.username[0]);
+                if (errors.group) vGroup.setError(errors.group[0]);
+                if (errors.role) role.setError(errors.role[0]);
+                if (errors.first_name) first_name.setError(errors.first_name[0]);
+                if (errors.last_name) last_name.setError(errors.last_name[0]);
+                if (errors.email) email.setError(errors.email[0]);
+                if (errors.password1) password1.setError(errors.password1[0]);
+                if (errors.password2) password2.setError(errors.password2[0]);
+            }
         }
-        if (!role.valid) {
-            role.setError("Please select a role");
-            role.focus();
-        }
-        if (username.valid && password.valid) {
-            alert(`User: ${username.value}\nPassword: ${password.value}`);
+        else {
+            setToastVariant("danger");
+            setToastMessage("Something went wrong");
+            setShowToast(true); // Trigger showing the toast
+
         }
 
-        if (!password.valid) {
-            password.setError("Please enter a password");
-            password.focus();
-        }
-        if (!confirm_password.valid) {
-            password.setError("Please confirm your password");
-            password.focus();
-        }
-        if (password.value != confirm_password.value) {
-            console.log(password, confirm_password)
-            confirm_password.setError("Passwords do not match");
-            confirm_password.focus();
-        }
 
 
-
-        if (!username.valid) {
-            username.setError("Please enter a username");
-            username.focus();
-        }
-        if (!first_name.valid) {
-            first_name.setError("Please enter a first name");
-            first_name.focus();
-        }
     }
 
     return (
 
         <>
-
+            {showToast && (
+                <ToastGroup>
+                    <Toast variant={toastVariant} autoDismiss={3000}>{toastMessage}</Toast>
+                </ToastGroup>
+            )}
 
             <main className="n-reset n-stack-horizontal">
                 <Stack className="signup_stack">
 
                     <Card padding="l">
                         <h2 slot="header">Sign up to periDCR</h2>
-                        <form action="#" onSubmit={handleSubmit}>
+                        <form action="#" method="post" onSubmit={handleSubmit}>
                             <Stack direction="horizontal" wrap>
-                                <Select className="select" label="Group" name="group" value={group} onInput={handleInputChange} required {...group.inputProps}>
+                                <Select className="select" label="Group" name="group" onInput={handleInputChange} required {...group.inputProps}>
                                     <option value="">Select Group</option>
                                     <option value="Administrator">Administrator</option>
                                     <option value="Clinician">Clinician</option>
@@ -163,7 +196,7 @@ export function SignUp() {
 
                                     type="email"
                                     placeholder="user@example.com"
-                                    {...username.inputProps}
+                                    {...email.inputProps}
                                     required
                                 ></Input>
 
@@ -172,7 +205,8 @@ export function SignUp() {
                                         label="Password"
                                         type="password"
                                         placeholder="••••••••"
-                                        {...password.inputProps}
+                                        {...password1.inputProps}
+                                        name="password1"
                                         required
                                     ></Input>
                                 </div>
@@ -182,12 +216,13 @@ export function SignUp() {
                                         label="Confirm Password"
                                         type="password"
                                         placeholder="••••••••"
-                                        {...confirm_password.inputProps}
+                                        {...password2.inputProps}
+                                        name="password2"
                                         required
                                     ></Input>
                                 </div>
                                 <Stack justifyContent="center" alignItems="center">
-                                    <Button type="submit" variant="primary">
+                                    <Button type="submit" loading={loading} variant="primary">
                                         Sign Up
                                     </Button>
                                 </Stack>
