@@ -5,13 +5,23 @@ const AuthContext = createContext({})
 
 export default AuthContext
 export const AuthProvider = ({ children }) => {
-    
+
     let [user, setUser] = useState(null);
     let [authTokens, setAuthTokens] = useState(null);
 
-    let contextData  = {
-        user: user,
-        authTokens: authTokens,
+    function saveUser(user) {
+        setUser(user)
+    }
+
+    function saveAuthTokens() {
+        setAuthTokens(tokens)
+
+    }
+    let contextData = {
+        user,
+        authTokens,
+        saveUser,
+        saveAuthTokens
     }
 
 

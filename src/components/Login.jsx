@@ -75,7 +75,11 @@ export function Login() {
     const [loading, setLoading] = useState(false)
 
     const navigate = useNavigate();
-    const authContext = useContext(AuthContext)
+
+    const {saveUser} = useContext(AuthContext)
+    const {user} = useContext(AuthContext)
+
+    
 
     useEffect(() => {
         document.title = 'Log In';
@@ -102,8 +106,9 @@ export function Login() {
             setLoading(false);
             if (response.status) {
                 if (response.status === 200) {
-                    // authContext.setUser(response.data)
-                    // console.log(authContext.user)
+
+                    saveUser(response.data)
+                    console.log(user)
                     navigate("/");
 
                 } else {
