@@ -192,6 +192,7 @@ export function SignUp() {
                                     label="Last Name"
                                     type="text"
                                     {...last_name.inputProps}
+                                    autocomplete="on"
 
                                 ></Input>
                                 <Input
@@ -199,6 +200,7 @@ export function SignUp() {
 
                                     type="text"
                                     {...username.inputProps}
+                                    autocomplete="on"
                                     required
                                 ></Input>
                                 <Input
@@ -207,6 +209,7 @@ export function SignUp() {
                                     type="email"
                                     placeholder="user@example.com"
                                     {...email.inputProps}
+                                    autocomplete="on"
                                     required
                                 ></Input>
 
@@ -217,6 +220,7 @@ export function SignUp() {
                                         placeholder="••••••••"
                                         {...password1.inputProps}
                                         name="password1"
+                                        autocomplete="on"
                                         required
                                     ></Input>
                                 </div>
@@ -228,6 +232,7 @@ export function SignUp() {
                                         placeholder="••••••••"
                                         {...password2.inputProps}
                                         name="password2"
+                                        autocomplete="on"
                                         required
                                     ></Input>
                                 </div>
