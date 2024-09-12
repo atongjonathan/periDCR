@@ -3,6 +3,8 @@ import { Card, Stack, Input, Button, Select, ToastGroup, Toast } from "@nordheal
 import { Link, useNavigate } from 'react-router-dom'
 import "./css/SignUp.css";
 import axios from "axios";
+
+
 function useField(name, initialValue = "") {
     const [value, setValue] = useState(initialValue);
     const [error, setError] = useState();
@@ -57,6 +59,10 @@ export function SignUp() {
     let navigate = useNavigate();
 
 
+    useEffect(() => {
+        document.title = 'Sign Up'
+
+    }, [])
 
 
 
@@ -106,12 +112,12 @@ export function SignUp() {
 
         const response = await submitForm(formObject);
         setLoading(false);
-        if (response.status) {
+        if (response) {
             if (response.status === 201) {
                 navigate("/login");
                 setToastVariant("default");
                 setToastMessage("SignUp Successful");
-                setShowToast(true); 
+                setShowToast(true);
 
             } else if (response.status === 400) {
                 let errors = response.data.errors
@@ -128,7 +134,11 @@ export function SignUp() {
         else {
             setToastVariant("danger");
             setToastMessage("Something went wrong");
-            setShowToast(true); // Trigger showing the toast
+            setShowToast(true);
+            setTimeout(() => {
+                setShowToast(false);
+
+            }, 2000)
 
         }
 
@@ -221,8 +231,8 @@ export function SignUp() {
                                         required
                                     ></Input>
                                 </div>
-                                <Stack justifyContent="center" alignItems="center">
-                                    <Button type="submit" loading={loading} variant="primary">
+                                <Stack>
+                                    <Button type="submit" expand loading={loading} variant="primary">
                                         Sign Up
                                     </Button>
                                 </Stack>

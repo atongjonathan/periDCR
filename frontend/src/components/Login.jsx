@@ -59,7 +59,7 @@ async function loginUser(username, password) {
         // const response = await fetch(tokenUrl, reqOptions)
         return response;
     } catch (error) {
-        return error;
+        return error.response;
     }
 }
 
@@ -110,13 +110,14 @@ export function Login() {
             setLoading(true)
             const response = await loginUser(username.value, password.value);
             setLoading(false);
-            if (response.status) {
+            console.log(response)
+            if (response) {
                 if (response.status === 200) {
                     let tokens = response.data
                     saveAuthTokens(tokens)
                     // navigate("/");
 
-                } else {
+                } else if(response.status === 401) {
                     setToastVariant("danger");
                     setToastMessage("Invalid Credentials");
                     setShowToast(true); // Trigger showing the toast
