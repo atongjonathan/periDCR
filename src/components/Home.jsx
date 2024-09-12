@@ -1,10 +1,26 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useContext } from 'react'
 import AuthContext from '../context/AuthContext'
+import { Button } from '@nordhealth/react'
 
 export const Home = () => {
-  let auth = useContext(AuthContext)
+  let { user } = useContext(AuthContext);
+  let { logoutUser } = useContext(AuthContext);
+  useEffect(() => {
+    document.title = 'Home';
+  })
   return (
-    <div>Home {auth.name}</div>
+    
+    user ? (
+      <section>
+        <h1>Hello {user.username}</h1>
+        <Button onclick={() => {
+          logoutUser();
+        }
+        }>Logout</Button>
+      </section>
+    )
+
+      : <h1>User is Null</h1>
   )
 }

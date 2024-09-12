@@ -41,9 +41,9 @@ function useField(name, initialValue = "") {
 // Function to handle login requests
 async function loginUser(username, password) {
     const backendBaseUrl = import.meta.env.VITE_BACKEND_URL
-    const tokenUrl =  `${backendBaseUrl}/api/token/`
+    const tokenUrl = `${backendBaseUrl}/api/token/`
     const reqOptions = {
-        url:tokenUrl,
+        url: tokenUrl,
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -76,14 +76,21 @@ export function Login() {
 
     const navigate = useNavigate();
 
-    const {saveUser} = useContext(AuthContext)
-    const {user} = useContext(AuthContext)
+    const { saveAuthTokens } = useContext(AuthContext)
+    const { user } = useContext(AuthContext)
 
-    
+
 
     useEffect(() => {
         document.title = 'Log In';
     }, []);
+
+    useEffect(() => {
+        if (user) {
+            navigate("/")
+        }
+
+    }, [user]);
 
     // Effect to handle the display and automatic clearing of toast messages
     useEffect(() => {
@@ -98,7 +105,7 @@ export function Login() {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        
+
 
         if (username.valid && password.valid) {
             setLoading(true)
@@ -106,23 +113,25 @@ export function Login() {
             setLoading(false);
             if (response.status) {
                 if (response.status === 200) {
-
-                    saveUser(response.data)
-                    console.log(user)
-                    navigate("/");
+                    let tokens = response.data
+                    saveAuthTokens(tokens)
+                    // navigate("/");
 
                 } else {
                     setToastVariant("danger");
                     setToastMessage("Invalid Credentials");
+                    setShowToast(true); // Trigger showing the toast
+
 
                 }
             }
             else {
                 setToastVariant("danger");
                 setToastMessage("Something went wrong");
+                setShowToast(true); // Trigger showing the toast
+
             }
 
-            setShowToast(true); // Trigger showing the toast
         } else {
             if (!password.valid) {
                 password.setError("Please enter a password");

@@ -15,7 +15,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             {/* Home is child of PrivateRoute of which is a placeholder element for validation */}
-            <Route path="/" element={<PrivateRoute isAutheniticated={true}><Home /></PrivateRoute>}></Route>
+            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>}></Route>
 
             <Route path="/login" element={<Login />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>
