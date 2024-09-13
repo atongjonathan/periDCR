@@ -32,6 +32,7 @@ export const Home = () => {
                   Super User
                 </DropdownItem>
 
+
               </DropdownGroup>
 
             </Dropdown>
@@ -47,27 +48,31 @@ export const Home = () => {
               </NavItem>
 
             </NavGroup>
+            <Dropdown expand slot='footer'>
+              <Button slot='toggle' expand className='n-color-background'>
+                <Avatar slot='start' aria-hidden name='Jonathan Atong' src='https://ui-avatars.com/api/?name=Jonathan+Atong&rounded=true&background=95eec5&size=35'></Avatar>
+                Jonathan Atong
+              </Button>
+              <DropdownGroup>
+                <DropdownItem href='#'>View Profile</DropdownItem>
+                <DropdownItem href='#'>Settings</DropdownItem>
+
+              </DropdownGroup>
+              <DropdownItem onclick={() => {
+                  logoutUser();
+                }
+                }>Log Out
+                <Icon slot='end' name='interface-logout'></Icon>
+                </DropdownItem>
+
+            </Dropdown>
           </Navigation>
           <Header className='n-color-accent'>
             <Icon name="navigation-dashboard"></Icon>
             <h1 className='n-typescale-l'>Welcome</h1>
             <Input slot='end' size='m' type='search' hideLabel placeholder='Search'></Input>
 
-            <Dropdown slot='end'>
-              <Button variant='plain' slot='toggle' aria-describedby="user-tooltip">
-                <Avatar slot='start' className='n-color-background' name="Bath Clinic" src='https://ui-avatars.com/api/?name=Jonathan+Atong&rounded=true&background=95eec5&size=35'>PB</Avatar>
-              </Button>
-              <Avatar slot='header' className='n-color-background' name="Bath Clinic" src='https://ui-avatars.com/api/?name=Jonathan+Atong&rounded=true&background=95eec5&size=35'>PB</Avatar>
-              <p slot='header' className='n-color-text-weak n-font-size-s'>Signed in as <span className='n-font-weight-active'>Jonathan Atong</span></p>
-              <DropdownGroup>
-                <DropdownItem onclick={() => {
-                  logoutUser();
-                }
-                }>Log Out
-                <Icon slot='end' name='interface-logout'></Icon>
-                </DropdownItem>
-              </DropdownGroup>
-            </Dropdown>
+
           </Header>
 
           <Stack gap='l'>
