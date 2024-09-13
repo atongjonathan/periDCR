@@ -1,6 +1,7 @@
 :root {
     ----n-color-background: #E5E5E5;
     --n-color-accent: #2CD889;
+    --n-color-status-highlight: #2CD889;
 }
 
 body {
@@ -9,6 +10,7 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     min-height: 100%;
+    margin: 0;
 }
 a
 {
