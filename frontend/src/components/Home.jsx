@@ -5,7 +5,7 @@ import { Button, Layout, Dropdown, Avatar, DropdownGroup, DropdownItem, Input, H
 import logo from '../assets/favicon.png'
 import './css/Home.css'
 export const Home = () => {
-  let { user, logoutUser } = useContext(AuthContext);
+  let { user, logoutUser, avatarUrl } = useContext(AuthContext);
   useEffect(() => {
     document.title = 'Home';
   })
@@ -18,19 +18,16 @@ export const Home = () => {
           <Navigation slot='nav' stickyFooter>
             <Dropdown slot='header' expand>
               <Button size='s' slot='toggle' expand>
-                <Avatar slot='start' className='n-color-background' variant='square' name="Bath Clinic" src={logo}>PB</Avatar>
+                <Avatar slot='start' className='n-color-background' variant='square' name="Peri Bloom" src={logo}>PB</Avatar>
                 Peri Bloom
               </Button>
-              <DropdownGroup heading='atongjonathan@gmail.com'>
+              <DropdownGroup heading={user.email}>
                 <DropdownItem>
-                  <Avatar slot='start' variant='square' size='s' name="Bath Clinic">SU</Avatar>
-                  Super User
+                <Icon slot='start' name="user-single"></Icon>
+                  {user.role}
                   <Icon slot="end" name="interface-checked"></Icon>
                 </DropdownItem>
-                <DropdownItem>
-                  <Avatar slot='start' variant='square' size='s' name="Bath Clinic">SU</Avatar>
-                  Super User
-                </DropdownItem>
+
 
 
               </DropdownGroup>
@@ -50,8 +47,8 @@ export const Home = () => {
             </NavGroup>
             <Dropdown expand slot='footer'>
               <Button slot='toggle' expand className='n-color-background'>
-                <Avatar slot='start' aria-hidden name='Jonathan Atong' src='https://ui-avatars.com/api/?name=Jonathan+Atong&rounded=true&background=95eec5&size=35'></Avatar>
-                Jonathan Atong
+                <Avatar slot='start' aria-hidden name={user.first_name + '  ' + user.last_name} src={avatarUrl}></Avatar>
+                {user.first_name + '  ' + user.last_name}
               </Button>
               <DropdownGroup>
                 <DropdownItem href='#'>View Profile</DropdownItem>
@@ -59,11 +56,11 @@ export const Home = () => {
 
               </DropdownGroup>
               <DropdownItem onclick={() => {
-                  logoutUser();
-                }
-                }>Log Out
+                logoutUser();
+              }
+              }>Log Out
                 <Icon slot='end' name='interface-logout'></Icon>
-                </DropdownItem>
+              </DropdownItem>
 
             </Dropdown>
           </Navigation>
@@ -78,8 +75,8 @@ export const Home = () => {
           <Stack gap='l'>
 
             <Stack className='n-padding-bs-xxl n-padding-be-xl' gap='l' alignItems='center'>
-              <Avatar size='xxl' name="Bath Clinic" src='https://ui-avatars.com/api/?name=Jonathan+Atong&rounded=true&background=95eec5&size=35'>PB</Avatar>
-              <h1 className='n-typescale-xl'>Welcome, Jonathan Atong</h1>
+              <Avatar size='xxl' name={user.first_name + '  ' + user.last_name} src={avatarUrl}>PB</Avatar>
+              <h1 className='n-typescale-xl'>Welcome, {user.first_name + '  ' + user.last_name}</h1>
             </Stack>
             <Stack gap='l' className='stack' direction='horizontal'>
               <Card padding='l'>

@@ -11,6 +11,16 @@ export const AuthProvider = ({ children }) => {
     let storageUser = storageAuthTokens ? jwtDecode(storageAuthTokens.access) : null;
 
     let [user, setUser] = useState(() => storageUser);
+    let [fullName, setFullName] = useState(() => {
+        return `${user?.first_name ?? ''}${user?.last_name ? ' ' + user.last_name : ''}`;
+    });
+    
+    let [avatarUrl, setAvatarUrl] = useState(() => {
+        return user
+            ? `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&rounded=true&background=95eec5&size=35`
+            : 'https://ui-avatars.com/api/?name=User&rounded=true&background=95eec5&size=35';
+    });
+    
     let [authTokens, setAuthTokens] = useState(() => storageAuthTokens);
     let [loading, setLoading] = useState(true);
 
@@ -108,7 +118,9 @@ export const AuthProvider = ({ children }) => {
         logoutUser,
         toastMessage, setToastMessage,
         toastVariant, setToastVariant,
-        showToast, setShowToast
+        showToast, setShowToast,
+        avatarUrl, setAvatarUrl,
+        fullName, setFullName
     };
 
     return (
