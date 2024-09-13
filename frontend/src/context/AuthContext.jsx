@@ -14,13 +14,13 @@ export const AuthProvider = ({ children }) => {
     let [fullName, setFullName] = useState(() => {
         return `${user?.first_name ?? ''}${user?.last_name ? ' ' + user.last_name : ''}`;
     });
-    
+
     let [avatarUrl, setAvatarUrl] = useState(() => {
         return user
             ? `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&rounded=true&background=95eec5&size=35`
             : 'https://ui-avatars.com/api/?name=User&rounded=true&background=95eec5&size=35';
     });
-    
+
     let [authTokens, setAuthTokens] = useState(() => storageAuthTokens);
     let [loading, setLoading] = useState(true);
 
@@ -71,14 +71,14 @@ export const AuthProvider = ({ children }) => {
                     } else {
                         logoutUser();
                         setToastVariant("danger");
-                        setToastMessage("Token refresh failed. Please log in again.");
+                        setToastMessage("Refresh was not successful. Please log in again.");
                         setShowToast(true);
                     }
                 }
                 else {
                     logoutUser();
                     setToastVariant("danger");
-                    setToastMessage("Token refresh failed. Please log in again.");
+                    setToastMessage("Refresh failed. Please log in again.");
                     setShowToast(true);
                 }
 
@@ -120,7 +120,7 @@ export const AuthProvider = ({ children }) => {
         toastVariant, setToastVariant,
         showToast, setShowToast,
         avatarUrl, setAvatarUrl,
-        fullName, setFullName
+        fullName, setFullName,
     };
 
     return (
