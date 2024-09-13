@@ -1,43 +1,44 @@
-import { jwtDecode } from 'jwt-decode'
-import React, { useEffect, useState } from 'react'
-import { createContext } from 'react'
-import axios from 'axios'
+import { jwtDecode } from 'jwt-decode';
+import React, { useEffect, useState } from 'react';
+import { createContext } from 'react';
+import axios from 'axios';
 
+const AuthContext = createContext({});
 
-const AuthContext = createContext({})
-
-export default AuthContext
+export default AuthContext;
 export const AuthProvider = ({ children }) => {
-    let storageAuthTokens = JSON.parse(localStorage.getItem('authTokens'))
-    let storageUser = storageAuthTokens ? jwtDecode(storageAuthTokens.access) : null
+    let storageAuthTokens = JSON.parse(localStorage.getItem('authTokens'));
+    let storageUser = storageAuthTokens ? jwtDecode(storageAuthTokens.access) : null;
 
-    let [user, setUser] = useState(() => storageUser); // Value is set once on initial load and not every time te provider is being used
+    let [user, setUser] = useState(() => storageUser);
     let [authTokens, setAuthTokens] = useState(() => storageAuthTokens);
-    let [loading, setLoading] = useState(true)
+    let [loading, setLoading] = useState(true);
 
-
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
+    const [showToast, setShowToast] = useState(false); // New state to control toast visibility
 
     function saveAuthTokens(authTokenData) {
-        setAuthTokens(authTokenData)
-        let userData = jwtDecode(authTokenData.access)
-        setUser(userData)
-        localStorage.setItem('authTokens', JSON.stringify(authTokenData))
-
-
+        setAuthTokens(authTokenData);
+        let userData = jwtDecode(authTokenData.access);
+        setUser(userData);
+        localStorage.setItem('authTokens', JSON.stringify(authTokenData));
     }
 
     function logoutUser() {
-        localStorage.removeItem('authTokens')
-        setAuthTokens(null)
-        setUser(null)
+        localStorage.removeItem('authTokens');
+        setAuthTokens(null);
+        setUser(null);
+        setToastVariant("warning");
+        setToastMessage("You’ve been signed out. Please sign in to continue.");
+        setShowToast(true);
     }
-
 
     async function updateToken() {
         if (authTokens) {
-            const backendBaseUrl = import.meta.env.VITE_BACKEND_URL
-            const tokenUrl = `${backendBaseUrl}/api/token/refresh/`
-            let refresh = authTokens.refresh
+            const backendBaseUrl = import.meta.env.VITE_BACKEND_URL;
+            const tokenUrl = `${backendBaseUrl}/api/token/refresh/`;
+            let refresh = authTokens.refresh;
             const reqOptions = {
                 url: tokenUrl,
                 method: "POST",
@@ -51,57 +52,68 @@ export const AuthProvider = ({ children }) => {
 
             try {
                 const response = await axios.request(reqOptions);
-                // const response = await fetch(tokenUrl, reqOptions)
-                if (response.status == 200) {
-                    let data = response.data
-                    setAuthTokens(data)
-                    setUser(jwtDecode(data.access))
-                    localStorage.setItem('authTokens', JSON.stringify(data))
+                if (response) {
+                    if (response.status === 200) {
+                        let data = response.data;
+                        setAuthTokens(data);
+                        setUser(jwtDecode(data.access));
+                        localStorage.setItem('authTokens', JSON.stringify(data));
+                    } else {
+                        logoutUser();
+                        setToastVariant("danger");
+                        setToastMessage("Token refresh failed. Please log in again.");
+                        setShowToast(true);
+                    }
                 }
                 else {
-                    logoutUser()
+                    logoutUser();
+                    setToastVariant("danger");
+                    setToastMessage("Token refresh failed. Please log in again.");
+                    setShowToast(true);
                 }
+
 
                 return response;
 
             } catch (error) {
-
-                logoutUser()
+                logoutUser();
+                setToastVariant("danger");
+                setToastMessage("An error occurred during token refresh. Please log in again.");
+                setShowToast(true);
                 return error;
-            }
-            finally {
-                setLoading(false) // Always set loading to false after token attempt
+            } finally {
+                setLoading(false);
             }
         }
-
-
     }
 
     useEffect(() => {
-        if (loading) {
-            updateToken()
-            console.log("Initial update")
-        }
-        let fourMins = 1000 * 60 * 4
+        let fourMins = 1000 * 60 * 0.3;
 
         let interval = setInterval(() => {
             if (authTokens) {
-                updateToken()
+                updateToken();
             }
-        }, fourMins)
-        return () => clearInterval(interval)
+        }, fourMins);
 
-    }, [authTokens, loading])
+        // Clear the interval when the component unmounts
+        return () => clearInterval(interval);
+
+    }, [authTokens]); // Removed `loading` dependency, keeping only `authTokens`
+
     let contextData = {
         user,
         authTokens,
         saveAuthTokens,
-        logoutUser
-    }
+        logoutUser,
+        toastMessage, setToastMessage,
+        toastVariant, setToastVariant,
+        showToast, setShowToast
+    };
+
     return (
         <AuthContext.Provider value={contextData}>
             {children}
         </AuthContext.Provider>
-    )
-
-}
+    );
+};

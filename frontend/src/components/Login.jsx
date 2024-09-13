@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./css/Login.css";
-import { Card, Stack, Input, Button, ToastGroup, Toast } from "@nordhealth/react";
+import { Card, Stack, Input, Button, ToastGroup, Toast, Banner } from "@nordhealth/react";
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
@@ -69,14 +69,14 @@ export function Login() {
 
 
 
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
-    const [showToast, setShowToast] = useState(false); // New state to control toast visibility
+
     const [loading, setLoading] = useState(false)
 
     const navigate = useNavigate();
 
-    const { saveAuthTokens, user } = useContext(AuthContext)
+    const { saveAuthTokens, user, toastMessage, setToastMessage,
+        toastVariant, setToastVariant,
+        showToast, setShowToast } = useContext(AuthContext)
 
 
 
@@ -110,14 +110,13 @@ export function Login() {
             setLoading(true)
             const response = await loginUser(username.value, password.value);
             setLoading(false);
-            console.log(response)
             if (response) {
                 if (response.status === 200) {
                     let tokens = response.data
                     saveAuthTokens(tokens)
                     // navigate("/");
 
-                } else if(response.status === 401) {
+                } else if (response.status === 401) {
                     setToastVariant("danger");
                     setToastMessage("Invalid Credentials");
                     setShowToast(true); // Trigger showing the toast
@@ -147,14 +146,13 @@ export function Login() {
 
     return (
         <>
-            {showToast && (
-                <ToastGroup>
-                    <Toast variant={toastVariant} autoDismiss={3000}>{toastMessage}</Toast>
-                </ToastGroup>
-            )}
 
             <main className="n-reset n-stack-horizontal">
                 <Stack className="login_stack">
+                    {showToast && (
+                        <Banner shadow variant={toastVariant} >{toastMessage}</Banner>
+                      
+                    )}
                     <Card padding="l">
                         <h2 slot="header">Sign in to periDCR</h2>
                         <form onSubmit={handleSubmit}>
