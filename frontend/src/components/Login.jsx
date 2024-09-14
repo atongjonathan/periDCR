@@ -39,29 +39,7 @@ function useField(name, initialValue = "") {
 }
 
 // Function to handle login requests
-async function loginUser(username, password) {
-    const backendBaseUrl = import.meta.env.VITE_BACKEND_URL
-    const tokenUrl = `${backendBaseUrl}/api/token/`
-    const reqOptions = {
-        url: tokenUrl,
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        data: {
-            username,
-            password,
-        },
-    };
 
-    try {
-        const response = await axios.request(reqOptions);
-        // const response = await fetch(tokenUrl, reqOptions)
-        return response;
-    } catch (error) {
-        return error.response;
-    }
-}
 
 export function Login() {
     const username = useField("username");
@@ -76,7 +54,8 @@ export function Login() {
 
     const { saveAuthTokens, user, toastMessage, setToastMessage,
         toastVariant, setToastVariant,
-        showToast, setShowToast } = useContext(AuthContext)
+        showToast, setShowToast, loginUser } = useContext(AuthContext)
+
 
 
 
