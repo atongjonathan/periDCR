@@ -1,18 +1,12 @@
 import { jwtDecode } from 'jwt-decode';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { createContext } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext({});
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-// Create Axios instance
-const axiosInstance = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    }
-});
+
 export default AuthContext;
 export const AuthProvider = ({ children }) => {
 
@@ -29,66 +23,54 @@ export const AuthProvider = ({ children }) => {
 
 
 
-    let [fullName, setFullName] = useState(() => {
-        return `${user?.first_name ?? ''}${user?.last_name ? ' ' + user.last_name : ''}`;
-    });
-
-    let [avatarUrl, setAvatarUrl] = useState(() => {
-        return user
-            ? `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&rounded=true&background=95eec5&size=35`
-            : 'https://ui-avatars.com/api/?name=User&rounded=true&background=95eec5&size=35';
-    });
-
-
     const [toastMessage, setToastMessage] = useState('');
     const [toastVariant, setToastVariant] = useState('');
     const [showToast, setShowToast] = useState(false); // New state to control toast visibility
 
 
-    useEffect(() => {
-        const attachToken = async (config) => {
-            const accessToken = authTokens?.access;
-            if (accessToken) {
-                const decodedToken = jwtDecode(accessToken);
-                const isExpired = decodedToken.exp * 1000 < Date.now();
 
-                // If token is expired, attempt to refresh
-                if (isExpired) {
-                    const newTokens = await refreshAccessToken();
-                    if (newTokens) {
-                        config.headers['Authorization'] = `Bearer ${newTokens.access}`;
-                    }
-                } else {
-                    config.headers['Authorization'] = `Bearer ${accessToken}`;
-                }
-            }
-            return config;
-        };
+    const [refresh_time, setRefresh_time] = useState(false)
+    const intervalRef = useRef(null); // Store the interval ID here
 
-        // Add request interceptor
-        axiosInstance.interceptors.request.use(attachToken, (error) => {
-            return Promise.reject(error);
-        });
 
-    }, [authTokens]);
 
     // Refresh token function
-    const refreshAccessToken = async () => {
-        console.log("Token Refreshed")
+    const refreshAccessToken = async (authTokens) => {
+        const refreshUrl = API_BASE_URL + '/api/token/refresh/'
+        let decoded = jwtDecode(authTokens.access)
+        let time_to_expire = decoded.exp * 1000
+        console.log("Current Token will expire on " + new Date(time_to_expire).toString())
+        const reqOptions = {
+            url: refreshUrl,
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: {
+                refresh: authTokens?.refresh
+            },
+        };
         try {
-            const response = await axiosInstance.post('/api/token/refresh/', {
-                refresh: authTokens?.refresh,
-            });
+            const response = await axios.request(reqOptions);
 
             const newTokens = response.data;
             setAuthTokens(newTokens);
             setUser(jwtDecode(newTokens.access));
             localStorage.setItem('authTokens', JSON.stringify(newTokens));
+            console.log("Token Refreshed")
 
             return newTokens;
         } catch (error) {
-            console.error('Failed to refresh token', error);
-            logoutUser();
+            if (error.response?.status == 401) {
+                console.log('Failed to refresh token', error);
+                logoutUser();
+            }
+            else {
+                setToastVariant("danger");
+                setToastMessage("Something went wrong");
+                setShowToast(true);
+            }
+
             return null;
         }
     };
@@ -100,25 +82,81 @@ export const AuthProvider = ({ children }) => {
         setToastVariant("warning");
         setToastMessage("You’ve been signed out. Please sign in to continue.");
         setShowToast(true);
-        axiosInstance.defaults.headers['Authorization'] = null;
 
     }
 
     const loginUser = async (username, password) => {
+        const tokenUrl = API_BASE_URL + '/api/token/'
+        const reqOptions = {
+            url: tokenUrl,
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: {
+                username, password
+            },
+        };
+
         try {
-            const response = await axiosInstance.post('/api/token/', {
-                username,
-                password,
-            });
+            const response = await axios.request(reqOptions);
 
             const tokens = response.data;
             setAuthTokens(tokens);
             setUser(jwtDecode(tokens.access));
             localStorage.setItem('authTokens', JSON.stringify(tokens));
+            setToastVariant("success");
+            setToastMessage("Sign in successfull.");
+            setShowToast(true);
         } catch (error) {
-            console.error('Login failed', error);
+            if (error.response?.status == 401) {
+                setToastVariant("danger");
+                setToastMessage("Invalid credentials.");
+                setShowToast(true);
+            }
+            else {
+                setToastVariant("danger");
+                setToastMessage("Something went wrong");
+                setShowToast(true);
+            }
+
+            console.log('Login failed', error);
         }
     };
+
+
+
+
+    useEffect(() => {
+        const accessToken = authTokens?.access;
+
+        if (accessToken) {
+            intervalRef.current = setInterval(() => {
+                const decodedToken = jwtDecode(accessToken);
+                let leeway_time = 1000 * 60 * 1;
+                let time_to_expire = decodedToken.exp * 1000;
+                // console.log("Token will expire on " + new Date(time_to_expire).toString());
+
+                let time_rem = time_to_expire - Date.now();
+                // console.log("Time remaining is", time_rem / (1000 * 60) + ' mins');
+
+                if (time_rem < leeway_time) {
+                    refreshAccessToken(authTokens).then((newTokens) => {
+                        let decoded = jwtDecode(newTokens.access);
+                        console.log("New Tokens will expire on " + new Date(decoded.exp * 1000).toString());
+                        setAuthTokens(newTokens);
+                    }).catch((error) => {
+                        console.error("Failed to refresh token", error);
+                        clearInterval(intervalRef.current); // Clear the interval on failure
+                    });
+                }
+
+            }, 60 * 1000 * 0.3); // Check every minute
+
+            // Cleanup interval on unmount
+            return () => clearInterval(intervalRef.current);
+        }
+    }, [authTokens]);
 
 
 
@@ -126,9 +164,10 @@ export const AuthProvider = ({ children }) => {
         <AuthContext.Provider value={{
             user, toastMessage, setToastMessage,
             toastVariant, setToastVariant,
-            showToast, setShowToast, authTokens, loginUser, logoutUser, avatarUrl
+            showToast, setShowToast, authTokens, loginUser, logoutUser
         }}>
             {children}
         </AuthContext.Provider>
     );
-};
+}
+

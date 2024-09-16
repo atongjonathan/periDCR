@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import "./css/Login.css";
 import { Card, Stack, Input, Button, ToastGroup, Toast, Banner } from "@nordhealth/react";
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
@@ -52,8 +51,7 @@ export function Login() {
 
     const navigate = useNavigate();
 
-    const { saveAuthTokens, user, toastMessage, setToastMessage,
-        toastVariant, setToastVariant,
+    const { user, toastMessage, toastVariant,
         showToast, setShowToast, loginUser } = useContext(AuthContext)
 
 
@@ -89,26 +87,6 @@ export function Login() {
             setLoading(true)
             const response = await loginUser(username.value, password.value);
             setLoading(false);
-            if (response) {
-                if (response.status === 200) {
-                    let tokens = response.data
-                    saveAuthTokens(tokens)
-                    // navigate("/");
-
-                } else if (response.status === 401) {
-                    setToastVariant("danger");
-                    setToastMessage("Invalid Credentials");
-                    setShowToast(true); // Trigger showing the toast
-
-
-                }
-            }
-            else {
-                setToastVariant("danger");
-                setToastMessage("Something went wrong");
-                setShowToast(true); // Trigger showing the toast
-
-            }
 
         } else {
             if (!password.valid) {
@@ -130,7 +108,7 @@ export function Login() {
                 <Stack className="login_stack">
                     {showToast && (
                         <Banner shadow variant={toastVariant} >{toastMessage}</Banner>
-                      
+
                     )}
                     <Card padding="l">
                         <h2 slot="header">Sign in to periDCR</h2>
