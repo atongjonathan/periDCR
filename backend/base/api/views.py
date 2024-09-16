@@ -1,5 +1,6 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from ..models import PeriUser
@@ -38,6 +39,7 @@ def get_routes(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def users_list(request):
     users = PeriUser.objects.all()
     serializer = PeriUserSerializer(users, many=True)
@@ -45,6 +47,7 @@ def users_list(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def users(request, pk):
     user = PeriUser.objects.get(id=pk)
     serializer = PeriUserSerializer(user, many=False)
@@ -63,6 +66,7 @@ def create_user(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def update_user(request, pk):
     user = PeriUser.objects.get(id=pk)
     serializer = PeriUserSerializer(instance=user, data=request.data)
@@ -73,6 +77,7 @@ def update_user(request, pk):
 
 
 @api_view(['DELETE'])
+@permission_classes(IsAdminUser)
 def delete_user(request, pk):
     user = PeriUser.objects.get(id=pk)
     return Response('User Deleted')
