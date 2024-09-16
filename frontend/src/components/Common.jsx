@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useContext } from 'react'
 import AuthContext from '../context/AuthContext'
-import { Button, Layout, Dropdown, Avatar, DropdownGroup, DropdownItem, Input, Header, Navigation, NavGroup, NavItem, Icon } from '@nordhealth/react'
+import { Button, Layout, Dropdown, Avatar, DropdownGroup, DropdownItem, Input, Header, Navigation, NavGroup, NavItem, Icon, Tooltip, Stack } from '@nordhealth/react'
 import logo from '../assets/favicon.png'
 import './css/Home.css'
 
@@ -431,28 +431,53 @@ export const Common = (props) => {
 
 
                         <Dropdown expand slot='footer'>
-                            <Button slot='toggle' expand className='n-color-background'>
-                                <Avatar slot='start' aria-hidden name={user.first_name + '  ' + user.last_name} src={avatarUrl}></Avatar>
-                                {user.first_name + '  ' + user.last_name}
+                            <Button className='help-toggle' slot='toggle' expand>
+                                <Icon slot="start" class="n-help-icon" size="m" name="interface-help"></Icon>
+                                Help & Support
                             </Button>
                             <DropdownGroup>
-                                <DropdownItem href='#'>View Profile</DropdownItem>
-                                <DropdownItem href='#'>Settings</DropdownItem>
-
+                                <DropdownItem onclick="refresh()">Help center</DropdownItem>
+                                <DropdownItem onclick="refresh()">Contact us</DropdownItem>
+                                <DropdownItem onclick="refresh()">Support history</DropdownItem>
                             </DropdownGroup>
+
+
+
+                        </Dropdown>
+                    </Navigation>
+                    <Header className='n-color-accent'>
+                        <Stack direction='horizontal'>
+                            <Icon name="navigation-dashboard"></Icon>
+                            <h1 className='n-typescale-l'>Welcome</h1>
+                        </Stack>
+                        <Stack>
+                            <Input type='search' hideLabel placeholder='Search' expand ></Input>
+
+                        </Stack>
+
+                        {/* <Input type='search' hideLabel placeholder='Search' ></Input> */}
+                        <Dropdown slot="end">
+                            <Button variant="plain" slot="toggle" aria-describedby="user-tooltip">
+                                <Avatar name={user.first_name + ' ' + user.last_name} src={avatarUrl}></Avatar>
+                            </Button>
+                            <Avatar slot="header" size="s" name={user.first_name + ' ' + user.last_name} src={avatarUrl}></Avatar>
+                            <p slot="header" className="n-color-text-weak n-font-size-s">
+                                Signed in as <span className="n-font-weight-active">{user.first_name + ' ' + user.last_name}</span>
+                            </p>
+                            <DropdownGroup>
+                                <DropdownItem>My profile</DropdownItem>
+                                <DropdownItem>Account Settings</DropdownItem>
+                                <DropdownItem>Change password</DropdownItem>
+                            </DropdownGroup>
+
                             <DropdownItem onclick={() => {
                                 logoutUser();
                             }
                             }>Log Out
                                 <Icon slot='end' name='interface-logout'></Icon>
                             </DropdownItem>
-
                         </Dropdown>
-                    </Navigation>
-                    <Header className='n-color-accent'>
-                        <Icon name="navigation-dashboard"></Icon>
-                        <h1 className='n-typescale-l'>Welcome</h1>
-                        <Input slot='end' size='m' type='search' hideLabel placeholder='Search'></Input>
+                        <Tooltip id="user-tooltip">{user.first_name + ' ' + user.last_name}</Tooltip>
 
 
                     </Header>
