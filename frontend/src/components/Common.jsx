@@ -4,19 +4,17 @@ import AuthContext from '../context/AuthContext'
 import { Button, Layout, Dropdown, Avatar, DropdownGroup, DropdownItem, Input, Header, Navigation, NavGroup, NavItem, Icon, Tooltip, Stack } from '@nordhealth/react'
 import logo from '../assets/favicon.png'
 import './css/Home.css'
+import { UserContext } from '../context/UserContext'
 
 
 export const Common = (props) => {
     let { component } = props
     let { user, logoutUser } = useContext(AuthContext);
-    const [avatarUrl, setAvatarUrl] = useState(() => {
-        return user
-            ? `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&rounded=true&background=95eec5&size=35`
-            : 'https://ui-avatars.com/api/?name=User&rounded=true&background=95eec5&size=35';
-    });
+    let { periUser } = useContext(UserContext)
+   
     return (
 
-        user ? (
+        periUser ? (
             <section>
 
                 <Layout padding='none'>
@@ -26,10 +24,10 @@ export const Common = (props) => {
                                 <Avatar slot='start' className='n-color-background' variant='square' name="Peri Bloom" src={logo}>PB</Avatar>
                                 Peri Bloom
                             </Button>
-                            <DropdownGroup heading={user.email}>
+                            <DropdownGroup heading={periUser.email}>
                                 <DropdownItem>
                                     <Icon slot='start' name="user-single"></Icon>
-                                    {user.role}
+                                    {periUser.role}
                                     <Icon slot="end" name="interface-checked"></Icon>
                                 </DropdownItem>
 
@@ -43,7 +41,7 @@ export const Common = (props) => {
 
                         <NavGroup heading='Portal'>
                             {
-                                user.role == 'Admin' &&
+                                periUser.role == 'Admin' &&
                                 <NavItem href="administrator" icon="navigation-dashboard">
                                     Front Office
                                     <NavGroup slot="subnav">
@@ -86,7 +84,7 @@ export const Common = (props) => {
                                 </NavItem>
                             }
                             {
-                                user.role == 'Health Records Officer' &&
+                                periUser.role == 'Health Records Officer' &&
                                 <NavItem href="back" icon="navigation-dashboard">
                                     Administrator
                                     <NavGroup slot="subnav">
@@ -140,7 +138,7 @@ export const Common = (props) => {
                                 </NavItem>
                             }
                             {
-                                user.role == 'Nursing Office' && <NavItem href="nurse-station" icon="navigation-dashboard">
+                                periUser.role == 'Nursing Office' && <NavItem href="nurse-station" icon="navigation-dashboard">
                                     Nurse Station
                                     <NavGroup slot="subnav">
 
@@ -194,7 +192,7 @@ export const Common = (props) => {
                                 </NavItem>
                             }
                             {
-                                user.role == 'Medical Officer' &&
+                                periUser.role == 'Medical Officer' &&
                                 <NavItem href="consultation" icon="navigation-dashboard">
                                     Consultation
                                     <NavGroup slot="subnav">
@@ -273,7 +271,7 @@ export const Common = (props) => {
                                 </NavItem>
                             }
                             {
-                                user.role == 'Clinical Officer' &&
+                                periUser.role == 'Clinical Officer' &&
                                 <NavItem href="clinics" icon="navigation-dashboard">
                                     Clinics
                                     <NavGroup slot="subnav">
@@ -321,7 +319,7 @@ export const Common = (props) => {
 
 
                             {
-                                user.role == 'Lab Technician' &&
+                                periUser.role == 'Lab Technician' &&
                                 <NavItem href="laboratory" icon="navigation-dashboard">
                                     Laboratory
                                     <NavGroup slot="subnav">
@@ -355,7 +353,7 @@ export const Common = (props) => {
                             }
 
                             {
-                                user.role == 'Radiologist' && <NavItem href="radiology" icon="navigation-dashboard">
+                                periUser.role == 'Radiologist' && <NavItem href="radiology" icon="navigation-dashboard">
                                     Radiology
                                     <NavGroup slot="subnav">
 
@@ -381,7 +379,7 @@ export const Common = (props) => {
 
 
                             {
-                                user.role == 'Pharmacist' &&
+                                periUser.role == 'Pharmacist' &&
                                 <NavItem href="pharmarcy" icon="navigation-dashboard">
                                     Pharmarcy
                                     <NavGroup slot="subnav">
@@ -457,12 +455,12 @@ export const Common = (props) => {
 
                         {/* <Input type='search' hideLabel placeholder='Search' ></Input> */}
                         <Dropdown slot="end">
-                            <Button variant="plain" slot="toggle" aria-describedby="user-tooltip">
-                                <Avatar name={user.first_name + ' ' + user.last_name} src={avatarUrl}></Avatar>
+                            <Button variant="plain" slot="toggle" aria-describedby="periUser-tooltip">
+                                <Avatar name={periUser.fullName} src={periUser.avatarUrl}></Avatar>
                             </Button>
-                            <Avatar slot="header" size="s" name={user.first_name + ' ' + user.last_name} src={avatarUrl}></Avatar>
+                            <Avatar slot="header" size="s" name={periUser.fullName} src={periUser.avatarUrl}></Avatar>
                             <p slot="header" className="n-color-text-weak n-font-size-s">
-                                Signed in as <span className="n-font-weight-active">{user.first_name + ' ' + user.last_name}</span>
+                                Signed in as <span className="n-font-weight-active">{periUser.fullName}</span>
                             </p>
                             <DropdownGroup>
                                 <DropdownItem>My profile</DropdownItem>
@@ -477,7 +475,7 @@ export const Common = (props) => {
                                 <Icon slot='end' name='interface-logout'></Icon>
                             </DropdownItem>
                         </Dropdown>
-                        <Tooltip id="user-tooltip">{user.first_name + ' ' + user.last_name}</Tooltip>
+                        <Tooltip id="user-tooltip">{periUser.fullName}</Tooltip>
 
 
                     </Header>

@@ -2,14 +2,11 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { Button, Stack, Card, Avatar } from '@nordhealth/react'
 import AuthContext from '../context/AuthContext'
+import { UserContext } from '../context/UserContext'
 
 export const Home = () => {
-  const { user } = useContext(AuthContext)
-  const [avatarUrl, setAvatarUrl] = useState(() => {
-    return user
-      ? `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&rounded=true&background=95eec5&size=35`
-      : 'https://ui-avatars.com/api/?name=User&rounded=true&background=95eec5&size=35';
-  });
+  const { periUser } = useContext(UserContext)
+
   useEffect(() => {
     document.title = 'Home';
   }, [])
@@ -18,8 +15,8 @@ export const Home = () => {
     <Stack gap='l'>
 
       <Stack className='n-padding-bs-xxl n-padding-be-xl' gap='l' alignItems='center'>
-        <Avatar size='xxl' name={user.first_name + '  ' + user.last_name} src={avatarUrl}>PB</Avatar>
-        <h1 className='n-typescale-xl'>Welcome, {user.first_name + '  ' + user.last_name}</h1>
+        <Avatar size='xxl' name={periUser.fullName} src={periUser.avatarUrl}>PB</Avatar>
+        <h1 className='n-typescale-xl'>Welcome, {periUser.fullName}</h1>
       </Stack>
       <Stack gap='l' className='stack' direction='horizontal'>
         <Card padding='l'>

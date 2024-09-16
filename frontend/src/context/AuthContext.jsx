@@ -22,7 +22,6 @@ export const AuthProvider = ({ children }) => {
     });
 
 
-
     const [toastMessage, setToastMessage] = useState('');
     const [toastVariant, setToastVariant] = useState('');
     const [showToast, setShowToast] = useState(false); // New state to control toast visibility
@@ -39,7 +38,7 @@ export const AuthProvider = ({ children }) => {
         const refreshUrl = API_BASE_URL + '/api/token/refresh/'
         let decoded = jwtDecode(authTokens.access)
         let time_to_expire = decoded.exp * 1000
-        console.log("Current Token will expire on " + new Date(time_to_expire).toString())
+        // console.log("Current Token will expire on " + new Date(time_to_expire).toString())
         const reqOptions = {
             url: refreshUrl,
             method: "POST",
@@ -145,8 +144,10 @@ export const AuthProvider = ({ children }) => {
                         let decoded = jwtDecode(newTokens.access);
                         console.log("New Tokens will expire on " + new Date(decoded.exp * 1000).toString());
                         setAuthTokens(newTokens);
+                        setUser(decoded)
                     }).catch((error) => {
-                        console.error("Failed to refresh token", error);
+                        console.log("Failed to refresh token", error);
+                        logoutUser()
                         clearInterval(intervalRef.current); // Clear the interval on failure
                     });
                 }
