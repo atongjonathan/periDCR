@@ -31,7 +31,7 @@ export const Common = (props) => {
             : (
                 <section>
 
-                    <Layout padding='none'>
+                    <Layout padding='none' sticky>
                         <Navigation slot='nav' stickyFooter>
                             <Dropdown slot='header' expand>
                                 <Button size='s' slot='toggle' expand>
@@ -457,7 +457,7 @@ export const Common = (props) => {
 
                             </Dropdown>
                         </Navigation>
-                        <Header className='n-color-accent'>
+                        <Header slot='header' className='n-color-accent'>
                             <Stack direction='horizontal'>
                                 <Icon name="navigation-dashboard"></Icon>
                                 <h1 className='n-typescale-l'>Welcome</h1>

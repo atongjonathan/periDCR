@@ -3,9 +3,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from ..models import PeriUser
+from ..models import PeriUser, Patient
 from ..forms import SignUpForm
-from .serializers import PeriUserSerializer
+from .serializers import PeriUserSerializer, PatientSerializer
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -65,8 +65,8 @@ def create_user(request):
         return Response({'errors': form.errors}, status=400)
 
 
-@api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@api_view(['POST'])
 def update_user(request, pk):
     user = PeriUser.objects.get(id=pk)
     serializer = PeriUserSerializer(instance=user, data=request.data)
@@ -81,3 +81,51 @@ def update_user(request, pk):
 def delete_user(request, pk):
     user = PeriUser.objects.get(id=pk)
     return Response('User Deleted')
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def patient_list(request):
+    users = Patient.objects.all()
+    serializer = PatientSerializer(users, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def patient(request, pk):
+    user = Patient.objects.get(id=pk)
+    serializer = PatientSerializer(user, many=False)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_patient(request):
+    data = request.data
+    if data.get("dob") == '':
+        data.pop("dob")
+    try:
+        new_patient = Patient.objects.create(**request.data)
+        new_patient.save()
+        return Response({'message': 'Registration successful'}, status=201)
+    except Exception as e:
+        return Response({'exception': str(e)}, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_patient(request, pk):
+    patient = Patient.objects.get(id=pk)
+    serializer = PatientSerializer(instance=patient, data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+@permission_classes(IsAdminUser)
+def delete_patient(request, pk):
+    patient = Patient.objects.get(id=pk)
+    return Response('Patient Deleted')
