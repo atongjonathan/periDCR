@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useContext } from 'react'
 import AuthContext from '../context/AuthContext'
-import { Button, Layout, Dropdown, Avatar, DropdownGroup, DropdownItem, Input, Header, Navigation, NavGroup, NavItem, Icon, Tooltip, Stack } from '@nordhealth/react'
+import { Button, Layout, Dropdown, Avatar, DropdownGroup, DropdownItem, Input, Header, Navigation, NavGroup, NavItem, Icon, Tooltip, Stack, Skeleton } from '@nordhealth/react'
 import logo from '../assets/favicon.png'
 import './css/Home.css'
 import { UserContext } from '../context/UserContext'
@@ -16,17 +16,13 @@ export const Common = (props) => {
 
         userLoading ?
 
-            <Layout padding='none'>
-                <Navigation slot='nav' stickyFooter>
+           
+            <main>
+                <div className="loader">
+                <img src={logo} alt="Loading" aria-label='Loading' />
 
-                </Navigation>
-                <Header>
-
-                </Header>
-                <Stack className='n-padding-bs-xxl n-padding-be-xxl' gap='l' alignItems='center'>
-                    <Avatar size='xxl' variant='square' name="Peri Bloom" src={logo}>PB</Avatar>
-                </Stack>
-            </Layout>
+                </div>
+            </main>
 
             : (
                 <section>
