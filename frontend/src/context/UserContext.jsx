@@ -43,7 +43,7 @@ export const UserProvider = ({ children }) => {
     }, [user]); // Re-run the effect when `user` changes
 
     return (
-        <UserContext.Provider value={{ periUser, userLoading }}>
+        <UserContext.Provider value={{ periUser, userLoading, setUserLoading }}>
             {children}
         </UserContext.Provider>
     );

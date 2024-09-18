@@ -16,7 +16,7 @@ export const Common = (props) => {
 
         userLoading ?
 
-           
+
             <main>
                 <div className="loader">
                 <img src={logo} alt="Loading" aria-label='Loading' />

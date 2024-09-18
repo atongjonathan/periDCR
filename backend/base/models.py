@@ -55,8 +55,7 @@ class Patient(models.Model):
     uuid = models.CharField(max_length=50, blank=True)
     version_id = models.CharField(max_length=60, blank=True)
     time_created = models.DateTimeField(blank=True, null=True, auto_now_add=True)
-    uuid = models.CharField(max_length=50, blank=True)
-    uid = PatientAutoField(prefix="PAT-", blank=True, unique=True)
+    name = models.CharField(max_length=100, blank=True)
     first_name = models.CharField(max_length=50, blank=True)
     middle_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
@@ -67,4 +66,4 @@ class Patient(models.Model):
     sex = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.uid}"
+        return f"{self.name}"

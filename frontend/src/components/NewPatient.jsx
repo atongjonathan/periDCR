@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from 'react'
 import AuthContext from '../context/AuthContext'
-import { Link, useNavigate } from 'react-router-dom'
-import { Card, Stack, Input, Button, Select, ToastGroup, Toast, Header, Layout, Badge } from "@nordhealth/react";
+import { useNavigate } from 'react-router-dom'
+import { Card, Stack, Input, Button, Select, Header, Badge } from "@nordhealth/react";
 import Frappe from '../utils/Frappe';
 import EHRBase from '../utils/EHRBase';
 import axios from 'axios';
@@ -85,8 +85,9 @@ export const NewPatient = () => {
 
                 if (ehrbaseResponse.ehr_id) {
                     let patient = { ...formObject, ...ehrbaseResponse };
+                    patient.name = frappeResponse.data.name
+                    console.log(patient)
                     let backendResponse = await createPatient(patient);
-
                     if (backendResponse?.status == 201) {
                         setStatus("success");
                         navigate("/")
@@ -165,49 +166,49 @@ export const NewPatient = () => {
                     Save
                 </Button>
             </Header>
-            <Card>
+            <Stack className='n-padding-i-l n-padding-b-l'>
+                <Card>
 
 
-                <Stack direction='horizontal'>
-                    <Stack>
-                        <Input type='text' name='first_name' label='First Name' expand required {...first_name.inputProps}></Input>
-                        <Input type='text' name='middle_name' label='Middle Name' expand></Input>
-                        <Input type='text' name='last_name' label='Last Name' expand></Input>
-                        <Select label='Sex' name='sex' expand required {...sex.inputProps}>
-                            <option value="">Select Sex</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Genderqueer">Genderqueer</option>
-                            <option value="Non-Conforming">Non-Conforming</option>
-                            <option value="Other">Other</option>
-                            <option value="Prefer not to say">Prefer not to say</option>
-                            <option value="Transgender">Transgender</option>
-                        </Select>
+                    <Stack direction='horizontal'>
+                        <Stack>
+                            <Input type='text' name='first_name' label='First Name' expand required {...first_name.inputProps}></Input>
+                            <Input type='text' name='middle_name' label='Middle Name' expand></Input>
+                            <Input type='text' name='last_name' label='Last Name' expand></Input>
+                            <Select label='Sex' name='sex' expand required {...sex.inputProps}>
+                                <option value="">Select Sex</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Genderqueer">Genderqueer</option>
+                                <option value="Non-Conforming">Non-Conforming</option>
+                                <option value="Other">Other</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                                <option value="Transgender">Transgender</option>
+                            </Select>
 
+                        </Stack>
+                        <Stack>
+                            <Input type='text' name='phone' label='Phone' expand></Input>
+                            <Input type='email' name='email' label='Email' expand></Input>
+                            <Input type='date' name='dob' label='Date of Birth' expand></Input>
+                            <Select label='Blood Group' expand>
+                                <option value="">Select Blood Group</option>
+                                <option value="A Positive">A Positive</option>
+                                <option value="A Negative">A Negative</option>
+                                <option value="B Positive">B Positive</option>
+                                <option value="B Negative">B Negative</option>
+                                <option value="O Positive">O Positive</option>
+                                <option value="O Negative">O Negative</option>
+                                <option value="AB Positive">AB Positive</option>
+                                <option value="AB Negative">AB Negative</option>
+                            </Select>
+                        </Stack>
                     </Stack>
-                    <Stack>
-                        <Input type='text' name='phone' label='Phone' expand></Input>
-                        <Input type='email' name='email' label='Email' expand></Input>
-                        <Input type='date' name='dob' label='Date of Birth' expand></Input>
-                        <Select label='Blood Group' expand>
-                            <option value="">Select Blood Group</option>
-                            <option value="A Positive">A Positive</option>
-                            <option value="A Negative">A Negative</option>
-                            <option value="B Positive">B Positive</option>
-                            <option value="B Negative">B Negative</option>
-                            <option value="O Positive">O Positive</option>
-                            <option value="O Negative">O Negative</option>
-                            <option value="AB Positive">AB Positive</option>
-                            <option value="AB Negative">AB Negative</option>
-                        </Select>
-                    </Stack>
-                </Stack>
 
 
-            </Card>
-            <ToastGroup>
-                <Toast variant='primary'>Patient Created</Toast>
-            </ToastGroup>
+                </Card>
+            </Stack>
+
 
 
 

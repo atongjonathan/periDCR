@@ -33,12 +33,41 @@ export const Frappe = () => {
     };
 
     // Get a specific doctype with parameters
-    const getDoctype = async (doctype, params = {}) => {
+    const getDoctype = async (doctype, id, params = {}) => {
+        let reqOptions = {
+            url: `${baseUrl}/api/resource/${doctype}/${id}`,
+            method: 'GET',
+            headers: {
+                "Accept": "*/*",
+                "Authorization": "Basic NGNmYjYyN2U3ZjViZjQ2OjU0YWI5Njk0MzE2MTViYw=="
+            },
+            params:params
+
+        }
         try {
-            const response = await axios.get(`${baseUrl}/api/resource/${doctype}`, { headers, params });
+            const response = await axios.request(reqOptions);
             return response.data;
         } catch (error) {
-            console.error('Error getting doctype:', error.response?.data || error);
+            console.log('Error getting doctype:', error.response?.data || error);
+            return null;
+        }
+    };
+    const updateDoctype = async (doctype, id, body = {}) => {
+        let reqOptions = {
+            url: `${baseUrl}/api/resource/${doctype}/${id}`,
+            method: 'PUT',
+            headers: {
+                "Accept": "*/*",
+                "Authorization": "Basic NGNmYjYyN2U3ZjViZjQ2OjU0YWI5Njk0MzE2MTViYw=="
+            },
+            data:JSON.stringify(body)
+            
+        }
+        try {
+            const response = await axios.request(reqOptions);
+            return response.data;
+        } catch (error) {
+            console.log('Error updating doctype:', error.response?.data || error);
             return null;
         }
     };
@@ -139,6 +168,7 @@ export const Frappe = () => {
         getLoggedUser,
         createDocument,
         getDoctype,
+        updateDoctype,
         postRPC,
         createPractitioner,
         createPatient,

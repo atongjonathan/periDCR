@@ -93,10 +93,13 @@ def patient_list(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def patient(request, pk):
-    user = Patient.objects.get(id=pk)
-    serializer = PatientSerializer(user, many=False)
-    return Response(serializer.data)
+def patient(request, name):
+    try:
+        user = Patient.objects.get(name=name)
+        serializer = PatientSerializer(user, many=False)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({'exception': str(e)}, status=400)
 
 
 @api_view(['POST'])
@@ -115,8 +118,8 @@ def create_patient(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def update_patient(request, pk):
-    patient = Patient.objects.get(id=pk)
+def update_patient(request, name):
+    patient = Patient.objects.get(name=name)
     serializer = PatientSerializer(instance=patient, data=request.data)
 
     if serializer.is_valid():
