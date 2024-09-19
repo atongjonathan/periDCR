@@ -1,6 +1,11 @@
 from django.contrib import admin
-from .models import PeriUser, Patient
+from . models import Patient
+from import_export.admin import ImportExportModelAdmin
 
-admin.site.register(PeriUser)
-admin.site.register(Patient)
+class PatientAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    pass
+
+admin.site.register(Patient, PatientAdmin)
+
+
 # Register your models here.
