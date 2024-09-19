@@ -23,3 +23,14 @@
 .header {
   background-color: var(--colorBody);
 }
+.logo
+{
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+.logo nord-avatar
+{
+ cursor: pointer;
+}

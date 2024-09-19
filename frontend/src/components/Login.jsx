@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import "./css/Login.css";
-import { Card, Stack, Input, Button, ToastGroup, Toast, Banner } from "@nordhealth/react";
+import { Card, Stack, Input, Button, Avatar, Toast, Banner } from "@nordhealth/react";
 import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
+import logo from '../assets/favicon.png'
 
 // Helper hook for input fields
 function useField(name, initialValue = "") {
@@ -111,7 +112,11 @@ export function Login() {
 
                     )}
                     <Card padding="l">
-                        <h2 slot="header">Sign in to periDCR</h2>
+                        <div className="logo" slot="header">
+                            <Avatar className='n-color-background' size="l" variant='square' name="Peri Bloom" src={logo}>PB
+                            </Avatar>
+                            <p>Sign in to periDCR</p>
+                        </div>
                         <form onSubmit={handleSubmit}>
                             <Stack>
                                 <Input

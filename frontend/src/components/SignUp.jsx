@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Card, Stack, Input, Button, Select, ToastGroup, Toast } from "@nordhealth/react";
+import { Card, Stack, Input, Button, Select, ToastGroup, Toast, Avatar, Header, Icon } from "@nordhealth/react";
 import { Link, useNavigate } from 'react-router-dom'
 import "./css/SignUp.css";
 import axios from "axios";
+import logo from '../assets/favicon.png'
 
 
 function useField(name, initialValue = "") {
@@ -159,7 +160,16 @@ export function SignUp() {
                 <Stack className="signup_stack">
 
                     <Card padding="l">
-                        <h2 slot="header">Sign up to periDCR</h2>
+
+
+                        <div className="logo" slot="header">
+                            <Avatar className='n-color-background' size="l" variant='square' name="Peri Bloom" src={logo}>PB
+                            </Avatar>
+                            <p>Sign up to periDCR</p>
+                        </div>
+
+
+
                         <form action="#" method="post" onSubmit={handleSubmit}>
                             <Stack direction="horizontal" wrap>
                                 <Select className="select" label="Group" name="group" onInput={handleInputChange} required {...group.inputProps}>
