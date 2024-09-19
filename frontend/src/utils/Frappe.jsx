@@ -99,7 +99,7 @@ export const Frappe = () => {
         const response = await createDocument(body, 'Healthcare Practitioner');
         const data = response?.data;
         const message = response?.message;
-        if (data) return data.name;
+        if (data) return response;
         throw new Error(message || 'Error creating practitioner');
     };
 

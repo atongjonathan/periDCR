@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from ..models import PeriUser, Patient
@@ -34,7 +34,7 @@ def get_routes(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
 def users_list(request):
     users = PeriUser.objects.all()
     serializer = PeriUserSerializer(users, many=True)
@@ -72,14 +72,14 @@ def update_user(request, pk):
 
 
 @api_view(['DELETE'])
-@permission_classes(IsAdminUser)
+@permission_classes(IsAuthenticated)
 def delete_user(request, pk):
     user = PeriUser.objects.get(id=pk)
     return Response('User Deleted')
 
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
 def patient_list(request):
     users = Patient.objects.all()
     serializer = PatientSerializer(users, many=True)
@@ -124,7 +124,7 @@ def update_patient(request, name):
 
 
 @api_view(['DELETE'])
-@permission_classes(IsAdminUser)
+@permission_classes(IsAuthenticated)
 def delete_patient(request, pk):
     patient = Patient.objects.get(id=pk)
     return Response('Patient Deleted')

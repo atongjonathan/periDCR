@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import "./css/SignUp.css";
 import axios from "axios";
 import logo from '../assets/favicon.png'
+import Frappe from "../utils/Frappe";
 
 
 function useField(name, initialValue = "") {
@@ -36,7 +37,7 @@ function useField(name, initialValue = "") {
     };
 }
 
-
+const frappe = Frappe()
 
 
 export function SignUp() {
@@ -70,12 +71,14 @@ export function SignUp() {
     function handleInputChange(e) {
         let value = e.target.value
         setGroup(value)
-        console.log(value, value == 'Administrator')
         if (value == 'Administrator') {
             setRoles(["", "Admin", "Health Records Officer"])
         }
         else if (value == 'Clinician') {
             setRoles(["", "Medical Officer", "Clinical Officer", "Nursing Officer", "Pharmacist", "Radiologist", "Lab Technician"])
+        }
+        else {
+            setRoles([""])
         }
 
     }
@@ -115,10 +118,18 @@ export function SignUp() {
         setLoading(false);
         if (response) {
             if (response.status === 201) {
-                navigate("/login");
-                setToastVariant("default");
-                setToastMessage("SignUp Successful");
-                setShowToast(true);
+                let frappeResponse = await frappe.createPractitioner(formObject.first_name, formObject.last_name)
+                if (frappeResponse.data) {
+                    setToastMessage("SignUp Successful");
+                    setToastVariant("success");
+                    setShowToast(true);
+                    navigate("/login");
+                }
+                else {
+                    console.log(response)
+                }
+
+
 
             } else if (response.status === 400) {
                 let errors = response.data.errors
@@ -133,6 +144,7 @@ export function SignUp() {
             }
         }
         else {
+            console.log(response)
             setToastVariant("danger");
             setToastMessage("Something went wrong");
             setShowToast(true);
@@ -167,85 +179,42 @@ export function SignUp() {
                             </Avatar>
                             <p>Sign up to periDCR</p>
                         </div>
-
-
-
                         <form action="#" method="post" onSubmit={handleSubmit}>
-                            <Stack direction="horizontal" wrap>
-                                <Select className="select" label="Group" name="group" onInput={handleInputChange} required {...group.inputProps}>
-                                    <option value="">Select Group</option>
-                                    <option value="Administrator">Administrator</option>
-                                    <option value="Clinician">Clinician</option>
+                            <Stack direction="vertical">
+                                <Stack direction="horizontal">
+                                    <Stack>
+                                        <Select className="select" label="Group" name="group" onChange={handleInputChange} required {...vGroup.inputProps}>
+                                            <option value="">Select Group</option>
+                                            <option value="Administrator">Administrator</option>
+                                            <option value="Clinician">Clinician</option>
+                                        </Select>
 
-                                </Select>
-                                <div className="role">
-                                    <Select className="role" label="Role" name="role" required {...role.inputProps}>
-                                        {
-                                            roles.length > 0 ? roles.map((role) => (
-                                                <option key={role} value={role}>{role ? role : "Select Role"}</option>
+                                        <Input label="First Name" type="text" {...first_name.inputProps}></Input>
 
-                                            )) : (<option value="">Select Group first</option>)
+                                        <Input label="Username" type="text" {...username.inputProps} autocomplete="on" required></Input>
+                                        <div className="password">
+                                            <Input label="Password" type="password" placeholder="••••••••" {...password1.inputProps} name="password1" autocomplete="on" required ></Input>
+                                        </div>
+                                    </Stack>
+                                    <Stack>
+                                        <Select className="role" label="Role" name="role" required {...role.inputProps}>
+                                            {
+                                                roles.length > 0 ? roles.map((role) => (
+                                                    <option key={role} value={role}>{role ? role : "Select Role"}</option>
 
-                                        }
+                                                )) : (<option value="">Select Group first</option>)
 
+                                            }
+                                        </Select>
 
-                                    </Select>
-                                </div>
+                                        <Input label="Last Name" type="text" {...last_name.inputProps} autocomplete="on"></Input>
 
-                                <Input
-                                    label="First Name"
-                                    type="text"
-                                    {...first_name.inputProps}
-                                    required
-                                ></Input>
-                                <Input
-                                    label="Last Name"
-                                    type="text"
-                                    {...last_name.inputProps}
-                                    autocomplete="on"
-
-                                ></Input>
-                                <Input
-                                    label="Username"
-
-                                    type="text"
-                                    {...username.inputProps}
-                                    autocomplete="on"
-                                    required
-                                ></Input>
-                                <Input
-                                    label="Email"
-
-                                    type="email"
-                                    placeholder="user@example.com"
-                                    {...email.inputProps}
-                                    autocomplete="on"
-                                    required
-                                ></Input>
-
-                                <div className="password">
-                                    <Input
-                                        label="Password"
-                                        type="password"
-                                        placeholder="••••••••"
-                                        {...password1.inputProps}
-                                        name="password1"
-                                        autocomplete="on"
-                                        required
-                                    ></Input>
-                                </div>
-
-                                <div className="password">
-                                    <Input
-                                        label="Confirm Password"
-                                        type="password"
-                                        placeholder="••••••••"
-                                        {...password2.inputProps}
-                                        name="password2"
-                                        autocomplete="on"
-                                        required
-                                    ></Input>
-                                </div>
+                                        <Input label="Email" type="email" placeholder="user@example.com" {...email.inputProps} autocomplete="on" required></Input>
+                                        <div className="password">
+                                            <Input label="Confirm Password" type="password" placeholder="••••••••" {...password2.inputProps} name="password2" autocomplete="on" required></Input>
+                                        </div>
+                                    </Stack>
+                                </Stack>
                                 <Stack>
                                     <Button type="submit" expand loading={loading} variant="primary">
                                         Sign Up
@@ -254,8 +223,8 @@ export function SignUp() {
                                 <div>
                                     Have an account? <Link to="/login">Log In</Link>.
                                 </div>
-
                             </Stack>
+
                         </form>
                     </Card>
 
