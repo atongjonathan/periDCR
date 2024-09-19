@@ -86,11 +86,10 @@ export const NewPatient = () => {
                 if (ehrbaseResponse.ehr_id) {
                     let patient = { ...formObject, ...ehrbaseResponse };
                     patient.name = frappeResponse.data.name
-                    console.log(patient)
                     let backendResponse = await createPatient(patient);
                     if (backendResponse?.status == 201) {
                         setStatus("success");
-                        navigate("/")
+                        navigate("/patient/" + backendResponse.data.name)
                     }
                     else {
                         console.log(backendResponse)

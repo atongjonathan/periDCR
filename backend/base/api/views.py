@@ -15,11 +15,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add custom claims
         token['username'] = user.username
-        token['first_name'] = user.first_name
-        token['last_name'] = user.last_name
-        token['email'] = user.email
-        token['role'] = user.role
-        token['practitioner'] = user.practitioner
         # ...
 
         return token
@@ -111,7 +106,8 @@ def create_patient(request):
     try:
         new_patient = Patient.objects.create(**request.data)
         new_patient.save()
-        return Response({'message': 'Registration successful'}, status=201)
+        serializer = PatientSerializer(new_patient, many=False)
+        return Response(serializer.data, status=201)
     except Exception as e:
         return Response({'exception': str(e)}, status=400)
 

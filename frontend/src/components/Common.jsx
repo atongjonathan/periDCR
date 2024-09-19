@@ -431,8 +431,8 @@ export const Common = (props) => {
                                     ICD Search
                                 </NavItem>
 
-                                <NavItem href="search/patient_card" icon="navigation-dashboard">
-                                    Patient Search
+                                <NavItem href="/patient" icon="navigation-dashboard">
+                                    Patients
                                 </NavItem>
 
                             </NavGroup>

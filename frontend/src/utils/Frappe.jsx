@@ -1,13 +1,13 @@
 import axios from 'axios';
-import { useState } from 'react';
 
 export const Frappe = () => {
-    const apiKey = import.meta.env.VITE_FRAPPE_API_KEY;
     const baseUrl = import.meta.env.VITE_FRAPPE_BASE_URL;
-    const apiSecret = import.meta.env.VITE_FRAPPE_API_SECRET;
+    const token = import.meta.env.VITE_FRAPPE_TOKEN;
 
     const headers = {
-        "Authorization": `token ${apiKey}:${apiSecret}`
+        "Authorization": "Basic " + token,
+        'Content-Type': 'application/json',
+        "Accept": "application/json"
     };
 
     // Get the currently logged-in user
@@ -41,7 +41,7 @@ export const Frappe = () => {
                 "Accept": "*/*",
                 "Authorization": "Basic NGNmYjYyN2U3ZjViZjQ2OjU0YWI5Njk0MzE2MTViYw=="
             },
-            params:params
+            params: params
 
         }
         try {
@@ -53,23 +53,31 @@ export const Frappe = () => {
         }
     };
     const updateDoctype = async (doctype, id, body = {}) => {
-        let reqOptions = {
-            url: `${baseUrl}/api/resource/${doctype}/${id}`,
-            method: 'PUT',
-            headers: {
-                "Accept": "*/*",
-                "Authorization": "Basic NGNmYjYyN2U3ZjViZjQ2OjU0YWI5Njk0MzE2MTViYw=="
-            },
-            data:JSON.stringify(body)
-            
-        }
+        // let reqOptions = {
+        //     url: `${baseUrl}/api/resource/${doctype}/${id}`,
+        //     method: 'PUT',
+        //     headers: {
+        //         "Accept": "application/json",
+        //         "Content-Type": "application/json",
+        //         "Authorization": "Basic NGNmYjYyN2U3ZjViZjQ2OjU0YWI5Njk0MzE2MTViYw=="
+        //     },
+        //     data: JSON.stringify(body)
+
+        // }
         try {
-            const response = await axios.request(reqOptions);
+            const response = await axios.put(`${baseUrl}/api/resource/${doctype}/${id}`, body, { headers });
             return response.data;
         } catch (error) {
-            console.log('Error updating doctype:', error.response?.data || error);
-            return null;
+            console.error('Error creating document:', error.response?.data || error);
+            return { error: error.response?.data?.exc_type || 'Error' };
         }
+        // try {
+        //     const response = await axios.request(reqOptions);
+        //     return response.data;
+        // } catch (error) {
+        //     console.log('Error updating doctype:', error.response?.data || error);
+        //     return null;
+        // }
     };
 
     // Post an RPC call to a specific function path

@@ -1,12 +1,16 @@
+@media (max-width: 768px) {
+  .stack {
+    flex-direction: column;
+  }
+}
 
-  @media (max-width: 768px) {
-    .stack {
-      flex-direction: column;
-    }
-  }
-  .layout
-  {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+.layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.patient:hover {
+  cursor: pointer;
+
+}

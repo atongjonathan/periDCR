@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import AuthContext from '../context/AuthContext';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Card, Stack, Input, Button, Select, Header, Badge, Toast, ToastGroup } from "@nordhealth/react";
 import axios from 'axios';
 import Frappe from '../utils/Frappe';
@@ -43,18 +43,7 @@ function useField(name, initialValue = "") {
     },
   };
 }
-function changed(obj1, obj2) {
-  for (let key in obj1) {
-    if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {
-      if (obj1[key] !== obj2[key]) {
-        return true
-      }
-      continue
-    }
-  }
-  return false
 
-}
 export const Patient = () => {
   const { authTokens } = useContext(AuthContext); // Get auth tokens from context
   const { id } = useParams(); // Get the patient ID from the URL parameters
@@ -68,6 +57,7 @@ export const Patient = () => {
   const [updated, setUpdated] = useState(false)
 
   const { setUserLoading } = useContext(UserContext)
+  const navigate = useNavigate()
 
   // Form fields
   const first_name = useField("first_name");
@@ -79,6 +69,19 @@ export const Patient = () => {
   const email = useField("email");
   const dob = useField("dob");
 
+  function changed(obj1, obj2) {
+    for (let key in obj1) {
+      if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {
+        if (obj1[key] != obj2[key] && (obj1[key] != null && obj2[key] != null)) {
+          setChanged(true)
+          return true
+        }
+        continue
+      }
+    }
+    return false
+  
+  }
 
   // Local getPatient function
   const getPatient = async (id) => {
@@ -138,7 +141,7 @@ export const Patient = () => {
 
   useEffect(() => {
     async function fetchPatientData() {
-      
+
       const response = await getPatient(id); // Use local getPatient
       if (response?.data) {
         const data = response.data;
@@ -157,9 +160,9 @@ export const Patient = () => {
 
         setStatus("success");
         // setUserLoading(false)
-        
+
       } else {
-        setStatus("danger");
+        navigate("/patient")
 
       }
     }
@@ -187,7 +190,6 @@ export const Patient = () => {
 
     try {
       const response = await axios.request(reqOptions);
-      console.log(response.data, patient)
       return response;
     } catch (error) {
       console.log(error);
@@ -199,8 +201,17 @@ export const Patient = () => {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const formObject = Object.fromEntries(formData.entries());
+    const formObject = {
+      first_name: first_name.value,
+      middle_name: middle_name.value,
+      last_name: last_name.value,
+      blood_group: blood_group.value,
+      sex: sex.value,
+      phone: phone.value,
+      email: email.value,
+      dob: dob.value
+    };
+
 
     if (changed(formObject, original)) {
       if (first_name.value == '') {
@@ -212,23 +223,28 @@ export const Patient = () => {
       }
       else if (first_name.value != '' || first_name.value != '') {
         setStatus("info");
-        setLoading(true);
-        Promise.all([await updatePeriPatient(formObject), await frappe.updateDoctype("Patient", id, formObject)]).then((values) => {
-          if (values[0].data && values[1].data) {
-            setLoading(false);
-            setUpdated(true)
+        try {
+          setLoading(true);
+          const [apiResponse, frappeResponse] = await Promise.all([
+            updatePeriPatient(formObject),
+            frappe.updateDoctype("Patient", id, formObject)
+          ]);
+
+          if (apiResponse?.data && frappeResponse?.data) {
+            setUpdated(true);
             setTimeout(() => {
-              setShowToast(false)
+              setShowToast(false);
               setChanged(false);
-              setUpdated(false)
-
-            }, 1000)
-            // setStatus("success")
-
-
+              setUpdated(false);
+            }, 1000);
           }
-        })
-        setLoading(false);
+        } catch (error) {
+          console.log(error);
+          setStatus("danger");
+        } finally {
+          setLoading(false);
+        }
+
 
 
       }
@@ -266,11 +282,11 @@ export const Patient = () => {
                 label="First Name"
                 expand
                 required
-                {...first_name.inputProps} onChange={() => setChanged(true)}
+                {...first_name.inputProps} onChange={() => changed()}
               />
-              <Input type="text" name="middle_name" label="Middle Name" expand {...middle_name.inputProps} onChange={() => setChanged(true)} />
-              <Input type="text" name="last_name" label="Last Name" expand {...last_name.inputProps} onChange={() => setChanged(true)} />
-              <Select label="Sex" name="sex" expand required {...sex.inputProps} onChange={() => setChanged(true)}>
+              <Input type="text" name="middle_name" label="Middle Name" expand {...middle_name.inputProps} onChange={() => changed()} />
+              <Input type="text" name="last_name" label="Last Name" expand {...last_name.inputProps} onChange={() => changed()} />
+              <Select label="Sex" name="sex" expand required {...sex.inputProps} onChange={() => changed()}>
                 <option value="">Select Sex</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -282,10 +298,10 @@ export const Patient = () => {
               </Select>
             </Stack>
             <Stack>
-              <Input type="text" name="phone" label="Phone" expand {...phone.inputProps} onChange={() => setChanged(true)} />
-              <Input type="email" name="email" label="Email" expand {...email.inputProps} onChange={() => setChanged(true)} />
-              <Input type="date" name="dob" label="Date of Birth" expand {...dob.inputProps} onChange={() => setChanged(true)} />
-              <Select label="Blood Group" expand {...blood_group.inputProps} onChange={() => setChanged(true)}>
+              <Input type="text" name="phone" label="Phone" expand {...phone.inputProps} onChange={() => changed()} />
+              <Input type="email" name="email" label="Email" expand {...email.inputProps} onChange={() => changed()} />
+              <Input type="date" name="dob" label="Date of Birth" expand {...dob.inputProps} onChange={() => changed()} />
+              <Select label="Blood Group" name='blood_group' expand {...blood_group.inputProps} onChange={() => changed()}>
                 <option value="">Select Blood Group</option>
                 <option value="A Positive">A Positive</option>
                 <option value="A Negative">A Negative</option>
