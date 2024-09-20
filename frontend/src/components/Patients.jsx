@@ -8,7 +8,7 @@ import { UserContext } from '../context/UserContext';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const Patients = () => {
-    const [patients, setPatients] = useState([])
+    const [patients, setPatients] = useState(null)
     let { authTokens, } = useContext(AuthContext)
     let { setUserLoading } = useContext(UserContext)
     const navigate = useNavigate()
@@ -69,15 +69,15 @@ export const Patients = () => {
                             </thead>
                             <tbody>
                                 {
-                                    patients.length == 0 ? (
+                                    patients?.length == 0 ? (
                                         <tr>
-                                            <td><h1>No Patients</h1>
+                                            <td><h1>No Patients yet</h1>
                                             </td>
 
                                         </tr>
                                     ) :
 
-                                        patients.map((patient, idx) => {
+                                        patients?.map((patient, idx) => {
                                             return (
                                                 <tr className='patient' onClick={() => navigate("/patient/" + patient.name)} title={patient.name} key={patient.name}>
                                                     <td>{idx + 1}</td>

@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
         setAuthTokens(null);
         setUser(null);
         setToastVariant("warning");
-        setToastMessage("You’ve been signed out. Please sign in to continue.");
+        setToastMessage("Please sign in to continue.");
         setShowToast(true);
 
     }
