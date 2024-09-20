@@ -115,7 +115,6 @@ export function SignUp() {
         const formObject = Object.fromEntries(formData.entries());
 
         const response = await submitForm(formObject);
-        setLoading(false);
         if (response) {
             if (response.status === 201) {
                 let frappeResponse = await frappe.createPractitioner(formObject.first_name, formObject.last_name)
@@ -123,6 +122,7 @@ export function SignUp() {
                     setToastMessage("SignUp Successful");
                     setToastVariant("success");
                     setShowToast(true);
+                    setLoading(false);
                     navigate("/login");
                 }
                 else {
