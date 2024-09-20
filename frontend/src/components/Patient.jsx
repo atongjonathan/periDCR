@@ -5,6 +5,8 @@ import { Card, Stack, Input, Button, Select, Header, Badge, Toast, ToastGroup } 
 import axios from 'axios';
 import Frappe from '../utils/Frappe';
 import { UserContext } from '../context/UserContext';
+import { isValid, parse, isFuture } from 'date-fns';
+import validator, { toBoolean } from 'validator'
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -44,6 +46,26 @@ function useField(name, initialValue = "") {
   };
 }
 
+
+function validateDOB(dob) {
+  // Parse the date string into a valid Date object
+  const parsedDate = parse(dob, 'yyyy-MM-dd', new Date());
+
+  // Check if the parsed date is valid
+  if (!isValid(parsedDate)) {
+    return { valid: false, message: 'Invalid date format' };
+  }
+
+  // Check if the person is old enough
+  if (isFuture(parsedDate)) {
+    return { valid: false, message: 'Date of birth cannot be in the future' };
+  }
+
+  return { valid: true, message: 'Valid date of birth' };
+}
+
+
+
 export const Patient = () => {
   const { authTokens } = useContext(AuthContext); // Get auth tokens from context
   const { id } = useParams(); // Get the patient ID from the URL parameters
@@ -69,7 +91,7 @@ export const Patient = () => {
   const email = useField("email");
   const dob = useField("dob");
 
-  function changed(obj1, obj2) {
+  function modified(obj1, obj2) {
     for (let key in obj1) {
       if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {
         if (obj1[key] != obj2[key] && (obj1[key] != null && obj2[key] != null)) {
@@ -80,9 +102,48 @@ export const Patient = () => {
       }
     }
     return false
-  
+
   }
 
+
+  function validForm() {
+    if (first_name.value == '') {
+      first_name.setError("This field is required");
+      first_name.focus()
+      return false
+    }
+
+    if (sex.value == '') {
+      sex.setError("This field is required");
+      sex.focus()
+      return false
+    }
+    if (toBoolean(email.value)) {
+      if (!validator.isEmail(email.value)) {
+        email.setError("Invalid email address");
+        return false
+      }
+    }
+
+    if (toBoolean(dob.value)) {
+      let validDOB = validateDOB(dob.value)
+      if (!validDOB.valid) {
+        dob.setError(validDOB.message)
+        return false
+      }
+    }
+    if (toBoolean(phone.value)) {
+      if (phone.value.length < 10) {
+        console.log(phone.value == '')
+        phone.setError("Phone number cannot be less than 10 characters");
+        return false
+      }
+    }
+    return true
+
+  }
+
+  
   // Local getPatient function
   const getPatient = async (id) => {
     const getPatientUrl = `${BACKEND_URL}/api/patient/${id}`;
@@ -130,9 +191,9 @@ export const Patient = () => {
       dob: dob.value,
     };
 
-    // Use your changed function to check if the current values are different from the original ones
-    if (original && changed(currentValues, original)) {
-      setChanged(true); // Set change to true if any field has changed
+    // Use your modified function to check if the current values are different from the original ones
+    if (original && modified(currentValues, original)) {
+      setChanged(true); // Set change to true if any field has modified
     } else {
       setChanged(false); // Set to false if no changes are detected
     }
@@ -213,15 +274,8 @@ export const Patient = () => {
     };
 
 
-    if (changed(formObject, original)) {
-      if (first_name.value == '') {
-        first_name.setError("This field is required");
-      }
-
-      if (sex.value == '') {
-        sex.setError("This field is required");
-      }
-      else if (first_name.value != '' || first_name.value != '') {
+    if (modified(formObject, original)) {
+      if (validForm()) {
         setStatus("info");
         try {
           setLoading(true);
@@ -244,9 +298,6 @@ export const Patient = () => {
         } finally {
           setLoading(false);
         }
-
-
-
       }
     }
     else {
@@ -282,11 +333,11 @@ export const Patient = () => {
                 label="First Name"
                 expand
                 required
-                {...first_name.inputProps} onChange={() => changed()}
+                {...first_name.inputProps} onChange={() => modified()}
               />
-              <Input type="text" name="middle_name" label="Middle Name" expand {...middle_name.inputProps} onChange={() => changed()} />
-              <Input type="text" name="last_name" label="Last Name" expand {...last_name.inputProps} onChange={() => changed()} />
-              <Select label="Sex" name="sex" expand required {...sex.inputProps} onChange={() => changed()}>
+              <Input type="text" name="middle_name" label="Middle Name" expand {...middle_name.inputProps} onChange={() => modified()} />
+              <Input type="text" name="last_name" label="Last Name" expand {...last_name.inputProps} onChange={() => modified()} />
+              <Select label="Sex" name="sex" expand required {...sex.inputProps} onChange={() => modified()}>
                 <option value="">Select Sex</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -298,10 +349,10 @@ export const Patient = () => {
               </Select>
             </Stack>
             <Stack>
-              <Input type="text" name="phone" label="Phone" expand {...phone.inputProps} onChange={() => changed()} />
-              <Input type="email" name="email" label="Email" expand {...email.inputProps} onChange={() => changed()} />
-              <Input type="date" name="dob" label="Date of Birth" expand {...dob.inputProps} onChange={() => changed()} />
-              <Select label="Blood Group" name='blood_group' expand {...blood_group.inputProps} onChange={() => changed()}>
+              <Input type="text" name="phone" label="Phone" expand {...phone.inputProps} onChange={() => modified()} />
+              <Input type="email" name="email" label="Email" expand {...email.inputProps} onChange={() => modified()} />
+              <Input type="date" name="dob" label="Date of Birth" expand {...dob.inputProps} onChange={() => modified()} oninput={() => modified()} />
+              <Select label="Blood Group" name='blood_group' expand {...blood_group.inputProps} onChange={() => modified()}>
                 <option value="">Select Blood Group</option>
                 <option value="A Positive">A Positive</option>
                 <option value="A Negative">A Negative</option>

@@ -13,12 +13,15 @@
     "@nordhealth/css": "^3.2.1",
     "@nordhealth/react": "^3.17.0",
     "@nordhealth/themes": "^8.0.3",
+    "@tanstack/react-table": "^8.20.5",
     "axios": "^1.7.7",
+    "date-fns": "^4.1.0",
     "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "validator": "^13.12.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

@@ -24,18 +24,20 @@ export const Patients = () => {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + authTokens?.access,
                 },
+
             };
 
             try {
                 const response = await axios.request(reqOptions);
                 let data = response.data
-                console.log(data)
                 setPatients(data); // Set the fetched user data
             } catch (error) {
                 console.log(error); // Log any error
             }
         }
+        setUserLoading(true)
         getPatients(); // Call the function to fetch user data
+        setUserLoading(false)
 
 
     }, []); // Re-run the effect when `user` changes
@@ -58,10 +60,11 @@ export const Patients = () => {
                         <table>
                             <thead>
                                 <tr>
+                                    <th>No</th>
                                     <th>Full Name</th>
                                     <th>ID</th>
                                     <th>Email</th>
-                                    <th>Sex</th>
+                                    <th>Gender</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -74,9 +77,10 @@ export const Patients = () => {
                                         </tr>
                                     ) :
 
-                                        patients.map((patient) => {
+                                        patients.map((patient, idx) => {
                                             return (
                                                 <tr className='patient' onClick={() => navigate("/patient/" + patient.name)} title={patient.name} key={patient.name}>
+                                                    <td>{idx + 1}</td>
                                                     <td>{patient.first_name + ' ' + patient.middle_name + ' ' + patient.last_name}</td>
                                                     <td>{patient.name}</td>
                                                     <td>{patient.email}</td>

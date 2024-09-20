@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid'; // For UUID generation
+import { formatISO9075 } from 'date-fns'; // For date conversion
+
 
 export const EHRBase = () => {
     const BASE_URL = import.meta.env.VITE_EHRBASE_URL;
@@ -71,7 +73,10 @@ export const EHRBase = () => {
             console.error('Error:', error);
         }
     };
-
+    const convertTime = (utcDatetimeStr) => {
+        const utcDate = new Date(utcDatetimeStr);
+        return formatISO9075(utcDate, { representation: 'complete' });
+    };
     // Create EHR function
     const createEHR = async () => {
         const reqUrl = `${BASE_URL}/rest/openehr/v1/ehr`;
@@ -105,6 +110,7 @@ export const EHRBase = () => {
                 data: JSON.stringify(payload)
             });
             const ehr = response.data;
+            const timeCreated = convertTime(ehr.time_created.value);
             return {
                 ehr_id: ehr.ehr_id.value,
                 time_created: timeCreated,
@@ -178,7 +184,7 @@ export const EHRBase = () => {
         }
     };
 
-  
+
 
     return { status, uploadTemplate, listTemplates, createEHR, postFlatComposition, getComposition, queryEHRs };
 };

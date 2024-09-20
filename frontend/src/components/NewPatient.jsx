@@ -5,6 +5,8 @@ import { Card, Stack, Input, Button, Select, Header, Badge } from "@nordhealth/r
 import Frappe from '../utils/Frappe';
 import EHRBase from '../utils/EHRBase';
 import axios from 'axios';
+import { isValid, parse, isFuture } from 'date-fns';
+import validator, { toBoolean } from 'validator'
 
 
 const frappe = Frappe()
@@ -51,7 +53,22 @@ function useField(name, initialValue = "") {
     };
 }
 
+function validateDOB(dob) {
+    // Parse the date string into a valid Date object
+    const parsedDate = parse(dob, 'yyyy-MM-dd', new Date());
 
+    // Check if the parsed date is valid
+    if (!isValid(parsedDate)) {
+        return { valid: false, message: 'Invalid date format' };
+    }
+
+    // Check if the person is old enough
+    if (isFuture(parsedDate)) {
+        return { valid: false, message: 'Date of birth cannot be in the future' };
+    }
+
+    return { valid: true, message: 'Valid date of birth' };
+}
 export const NewPatient = () => {
     const [loading, setLoading] = useState(false)
 
@@ -62,21 +79,70 @@ export const NewPatient = () => {
 
     const [status, setStatus] = useState("warning")
 
+    // Form fields
     const first_name = useField("first_name");
     const sex = useField("sex");
+    const middle_name = useField("middle_name");
+    const blood_group = useField("blood_group");
+    const last_name = useField("last_name");
+    const phone = useField("phone");
+    const email = useField("email");
+    const dob = useField("dob");
 
+
+    function validForm() {
+        if (first_name.value == '') {
+            first_name.setError("This field is required");
+            first_name.focus()
+            return false
+        }
+
+        if (sex.value == '') {
+            sex.setError("This field is required");
+            sex.focus()
+            return false
+        }
+        if (toBoolean(email.value)) {
+            if (!validator.isEmail(email.value)) {
+                email.setError("Invalid email address");
+                return false
+            }
+        }
+
+        if (toBoolean(dob.value)) {
+            let validDOB = validateDOB(dob.value)
+            if (!validDOB.valid) {
+                dob.setError(validDOB.message)
+                return false
+            }
+        }
+        if (toBoolean(phone.value)) {
+            if (phone.value.length < 10) {
+                console.log(phone.value == '')
+                phone.setError("Phone number cannot be less than 10 characters");
+                return false
+            }
+        }
+        return true
+
+    }
     async function handleSubmit(e) {
         setLoading(true)
 
         e.preventDefault()
 
-        if (first_name.valid && sex.valid) {
-            setStatus("info")
+        const formObject = {
+            first_name: first_name.value,
+            middle_name: middle_name.value,
+            last_name: last_name.value,
+            blood_group: blood_group.value,
+            sex: sex.value,
+            phone: phone.value,
+            email: email.value,
+            dob: dob.value
+        };
 
-            const formData = new FormData(e.target);
-            // Convert FormData to an object
-            const formObject = Object.fromEntries(formData.entries());
-
+        if (validForm()) {
             let frappeResponse = await frappe.createPatient(formObject)
 
             if (frappeResponse.data) {
@@ -97,6 +163,10 @@ export const NewPatient = () => {
                     }
 
                 }
+                else {
+                    console.log(ehrbaseResponse)
+                    setStatus("danger")
+                }
 
 
             }
@@ -106,17 +176,6 @@ export const NewPatient = () => {
             else {
                 console.log(frappeResponse)
                 setStatus("danger")
-            }
-
-        } else {
-            if (!first_name.valid) {
-                first_name.setError("This field is required");
-                first_name.focus();
-            }
-
-            if (!sex.valid) {
-                sex.setError("This field is required");
-                sex.focus();
             }
         }
 
@@ -187,9 +246,9 @@ export const NewPatient = () => {
 
                         </Stack>
                         <Stack>
-                            <Input type='text' name='phone' label='Phone' expand></Input>
-                            <Input type='email' name='email' label='Email' expand></Input>
-                            <Input type='date' name='dob' label='Date of Birth' expand></Input>
+                            <Input type='text' name='phone' label='Phone' expand {...phone.inputProps}></Input>
+                            <Input type='email' name='email' label='Email' expand {...email.inputProps}></Input>
+                            <Input type='date' name='dob' label='Date of Birth' expand {...dob.inputProps}></Input>
                             <Select label='Blood Group' expand>
                                 <option value="">Select Blood Group</option>
                                 <option value="A Positive">A Positive</option>

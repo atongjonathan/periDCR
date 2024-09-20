@@ -126,7 +126,7 @@ export function SignUp() {
                     navigate("/login");
                 }
                 else {
-                    console.log(response)
+                    navigate("/login");
                 }
 
 
