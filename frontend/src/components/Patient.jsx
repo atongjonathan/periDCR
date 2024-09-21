@@ -92,14 +92,20 @@ export const Patient = () => {
   const email = useField("email");
   const dob = useField("dob");
 
-  function modified(obj1, obj2) {
-    for (let key in obj1) {
-      if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {
-        if (obj1[key] != obj2[key] && (obj1[key] != null && obj2[key] != null)) {
+  function modified(formObject, original) {
+    for (let key in formObject) {
+      if (formObject.hasOwnProperty(key) && original.hasOwnProperty(key)) {
+        if (original[key] === null) {
+          original[key] = ''
+        }
+        if (formObject[key] !== original[key]) {
           setChanged(true)
           return true
         }
-        continue
+        else {
+          continue
+        }
+
       }
     }
     return false
@@ -261,16 +267,9 @@ export const Patient = () => {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const formObject = {
-      first_name: first_name.value,
-      middle_name: middle_name.value,
-      last_name: last_name.value,
-      blood_group: blood_group.value,
-      sex: sex.value,
-      phone: phone.value,
-      email: email.value,
-      dob: dob.value
-    };
+    const formData = new FormData(e.target);
+    // Convert FormData to an object
+    const formObject = Object.fromEntries(formData.entries());
 
 
     if (modified(formObject, original)) {
@@ -287,8 +286,7 @@ export const Patient = () => {
             showToaster("success", "Patient Updated")
             setChanged(false)
           }
-          else
-          {
+          else {
             setStatus("danger");
           }
         } catch (error) {
