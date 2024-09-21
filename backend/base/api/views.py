@@ -6,6 +6,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from ..models import PeriUser, Patient
 from ..forms import SignUpForm
 from .serializers import PeriUserSerializer, PatientSerializer
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -30,7 +32,7 @@ def get_routes(request):
         '/api/token',
         '/api/token/refresh'
     ]
-    return Response(routes)
+    return Response(routes, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -38,7 +40,7 @@ def get_routes(request):
 def users_list(request):
     users = PeriUser.objects.all()
     serializer = PeriUserSerializer(users, many=True)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -46,7 +48,7 @@ def users_list(request):
 def users(request, pk):
     user = PeriUser.objects.get(id=pk)
     serializer = PeriUserSerializer(user, many=False)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -54,28 +56,26 @@ def create_user(request):
     form = SignUpForm(request.data)
     if form.is_valid():
         form.save()  # Save the form to create the user
-        return Response({'message': 'Registration successful'}, status=201)
-    else:
+        return Response({'message': 'Registration successful'}, status=status.HTTP_201_CREATED)
         # Return form validation errors, including Django's built-in password validation errors
-        return Response({'errors': form.errors}, status=400)
+    return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def update_user(request, pk):
-    user = PeriUser.objects.get(id=pk)
-    serializer = PeriUserSerializer(instance=user, data=request.data)
+    try:
+        user = get_object_or_404(PeriUser, id=pk)
+        serializer = PeriUserSerializer(instance=user, data=request.data)
 
-    if serializer.is_valid():
-        serializer.save()
-    return Response(serializer.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['DELETE'])
-@permission_classes(IsAuthenticated)
-def delete_user(request, pk):
-    user = PeriUser.objects.get(id=pk)
-    return Response('User Deleted')
 
 
 @api_view(['GET'])
@@ -83,18 +83,18 @@ def delete_user(request, pk):
 def patient_list(request):
     users = Patient.objects.all()
     serializer = PatientSerializer(users, many=True)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def patient(request, name):
     try:
-        user = Patient.objects.get(name=name)
+        user = get_object_or_404(Patient, name=name)
         serializer = PatientSerializer(user, many=False)
         return Response(serializer.data)
     except Exception as e:
-        return Response({'exception': str(e)}, status=400)
+        return Response({'exception': str(e)}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
@@ -123,8 +123,18 @@ def update_patient(request, name):
     return Response(serializer.data)
 
 
-@api_view(['DELETE'])
-@permission_classes(IsAuthenticated)
-def delete_patient(request, pk):
-    patient = Patient.objects.get(id=pk)
-    return Response('Patient Deleted')
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def update_patient(request, name):
+    data = request.data
+    if data.get("dob") == '':
+        data.pop("dob")
+    user = get_object_or_404(Patient, name=name)
+    serializer = PatientSerializer(instance=user, data=data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
