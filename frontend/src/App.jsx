@@ -11,25 +11,27 @@ import { UserProvider } from "./context/UserContext";
 import { NewPatient } from "./components/NewPatient";
 import { Patient } from "./components/Patient";
 import { Patients } from "./components/Patients";
-
+import { MessageProvider } from "./context/MessageContext";
 
 function App() {
   return (
     <>
       <AuthProvider>
         <UserProvider>
-          <BrowserRouter>
-            <Routes>
-              {/* Home is child of PrivateRoute of which is a placeholder element for validation */}
-              <Route path="/" element={<PrivateRoute><Common component={<Home></Home>}></Common></PrivateRoute>}></Route>
-              <Route path="/new-patient" element={<PrivateRoute><Common component={<NewPatient></NewPatient>}></Common></PrivateRoute>}></Route>
-              <Route path="/patient/:id" element={<PrivateRoute><Common component={<Patient></Patient>}></Common></PrivateRoute>}></Route>
-              <Route path="/patient" element={<PrivateRoute><Common component={<Patients></Patients>}></Common></PrivateRoute>}></Route>
-              <Route path="/login" element={<Login />}></Route>
-              <Route path="/signup" element={<SignUp />}></Route>
-            </Routes>
+          <MessageProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Home is child of PrivateRoute of which is a placeholder element for validation */}
+                <Route path="/" element={<PrivateRoute><Common component={<Home></Home>}></Common></PrivateRoute>}></Route>
+                <Route path="/new-patient" element={<PrivateRoute><Common component={<NewPatient></NewPatient>}></Common></PrivateRoute>}></Route>
+                <Route path="/patient/:id" element={<PrivateRoute><Common component={<Patient></Patient>}></Common></PrivateRoute>}></Route>
+                <Route path="/patient" element={<PrivateRoute><Common component={<Patients></Patients>}></Common></PrivateRoute>}></Route>
+                <Route path="/login" element={<Login />}></Route>
+                <Route path="/signup" element={<SignUp />}></Route>
+              </Routes>
 
-          </BrowserRouter>
+            </BrowserRouter>
+          </MessageProvider>
         </UserProvider>
 
       </AuthProvider>

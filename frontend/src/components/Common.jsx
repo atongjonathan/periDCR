@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { useContext } from 'react'
 import AuthContext from '../context/AuthContext'
-import { Button, Layout, Dropdown, Avatar, DropdownGroup, DropdownItem, Input, Header, Navigation, NavGroup, NavItem, Icon, Tooltip, Stack, Skeleton } from '@nordhealth/react'
+import { Button, Layout, Dropdown, Avatar, DropdownGroup, DropdownItem, Input, Header, Navigation, NavGroup, NavItem, Icon, Tooltip, Stack, ToastGroup, Toast, NotificationGroup, Notification } from '@nordhealth/react'
 import logo from '../assets/favicon.png'
 import './css/Home.css'
 import { UserContext } from '../context/UserContext'
+import { MessageContext } from '../context/MessageContext'
 
 
 export const Common = (props) => {
     let { component } = props
     let { logoutUser } = useContext(AuthContext);
     let { periUser, userLoading } = useContext(UserContext)
+    const { variant, message, showToast, notify, header, pText, anchorLink, anchorText } = useContext(MessageContext)
 
     return (
 
@@ -19,13 +21,31 @@ export const Common = (props) => {
 
             <main>
                 <div className="loader">
-                <img src={logo} alt="Loading" aria-label='Loading' />
+                    <img src={logo} alt="Loading" aria-label='Loading' />
 
                 </div>
             </main>
 
             : (
                 <section>
+                    {
+                        showToast && (<ToastGroup>
+                            <Toast variant={variant}>{message}</Toast>
+                        </ToastGroup>)
+                    }
+
+                    {
+                        notify && (
+                            <NotificationGroup>
+                                <Notification>
+                                    <h2>{header}</h2>
+                                    <p>{pText}</p>
+                                    <a href={anchorLink}>{anchorText}</a></Notification>
+                            </NotificationGroup>
+                        )
+                    }
+
+
 
                     <Layout padding='none' sticky>
                         <Navigation slot='nav' stickyFooter>

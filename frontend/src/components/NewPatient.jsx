@@ -7,6 +7,8 @@ import EHRBase from '../utils/EHRBase';
 import axios from 'axios';
 import { isValid, parse, isFuture } from 'date-fns';
 import validator, { toBoolean } from 'validator'
+import { UserContext } from '../context/UserContext';
+import { MessageContext } from '../context/MessageContext';
 
 
 const frappe = Frappe()
@@ -73,11 +75,15 @@ export const NewPatient = () => {
     const [loading, setLoading] = useState(false)
 
     const { authTokens } = useContext(AuthContext)
+    const { periUser } = useContext(UserContext)
 
     const navigate = useNavigate()
 
 
     const [status, setStatus] = useState("warning")
+
+    const { showToaster, showNotification } = useContext(MessageContext)
+
 
     // Form fields
     const first_name = useField("first_name");
@@ -155,17 +161,23 @@ export const NewPatient = () => {
                     let backendResponse = await createPatient(patient);
                     if (backendResponse?.status == 201) {
                         setStatus("success");
-                        navigate("/patient/" + backendResponse.data.name)
+                        let patientUrl = "/patient/" + backendResponse.data.name
+                        showNotification("Patient Created", `${patient.first_name} created by ${periUser.first_name + ' ' + periUser.first_name}`, "Prescribe Medication", "/pharmarcy")
+                        navigate(patientUrl)
                     }
                     else {
-                        console.log(backendResponse)
+                        showToaster("danger", "Backend Server Error")
                         setStatus("danger")
                     }
 
                 }
                 else {
                     console.log(ehrbaseResponse)
-                    setStatus("danger")
+                    if (ehrbaseResponse.name == "AxiosError") {
+                        showToaster("danger", "EHRBase Server is not running")
+                        setStatus("danger")
+                    }
+
                 }
 
 

@@ -4,6 +4,9 @@
     --n-color-status-highlight: #2CD889;
     --n-color-border: #2CD889;
     --n-avatar-color: white;
+    --n-color-text-link: var(--n-color-accent);
+    --n-color-border-hover: var(--n-color-accent)
+
 }
 
 body {

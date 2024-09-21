@@ -1,3 +1,7 @@
+:root{
+  --n-color-accent: #2CD889;
+
+}
 @media (max-width: 768px) {
   .stack {
     flex-direction: column;
@@ -13,4 +17,8 @@
 .patient:hover {
   cursor: pointer;
 
+}
+.notification
+{
+  color: var(--n-color-accent);
 }

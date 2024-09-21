@@ -7,6 +7,7 @@ import Frappe from '../utils/Frappe';
 import { UserContext } from '../context/UserContext';
 import { isValid, parse, isFuture } from 'date-fns';
 import validator, { toBoolean } from 'validator'
+import { MessageContext } from '../context/MessageContext';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -75,8 +76,8 @@ export const Patient = () => {
 
   const [original, setOriginal] = useState(null)
   const [change, setChanged] = useState(false)
-  const [showToast, setShowToast] = useState(false)
-  const [updated, setUpdated] = useState(false)
+
+  const { showToaster, showNotification } = useContext(MessageContext)
 
   const { setUserLoading } = useContext(UserContext)
   const navigate = useNavigate()
@@ -143,7 +144,7 @@ export const Patient = () => {
 
   }
 
-  
+
   // Local getPatient function
   const getPatient = async (id) => {
     const getPatientUrl = `${BACKEND_URL}/api/patient/${id}`;
@@ -253,8 +254,6 @@ export const Patient = () => {
       const response = await axios.request(reqOptions);
       return response;
     } catch (error) {
-      console.log(error);
-      setStatus("danger");
       return null;
     }
   }
@@ -285,12 +284,12 @@ export const Patient = () => {
           ]);
 
           if (apiResponse?.data && frappeResponse?.data) {
-            setUpdated(true);
-            setTimeout(() => {
-              setShowToast(false);
-              setChanged(false);
-              setUpdated(false);
-            }, 1000);
+            showToaster("success", "Patient Updated")
+            setChanged(false)
+          }
+          else
+          {
+            setStatus("danger");
           }
         } catch (error) {
           console.log(error);
@@ -301,13 +300,7 @@ export const Patient = () => {
       }
     }
     else {
-      setShowToast(false)
-      setShowToast(true)
-      setTimeout(() => {
-        setShowToast(false)
-        setChanged(false);
-
-      }, 1000)
+      showToaster("danger", "No changes detected")
     }
 
 
@@ -367,25 +360,6 @@ export const Patient = () => {
           </Stack>
         </Card>
       </Stack>
-      {
-        showToast &&
-        (
-          <ToastGroup>
-            <Toast variant='danger'>No changes is the document</Toast>
-          </ToastGroup>
-        )
-
-      }
-      {
-        updated &&
-        (
-          <ToastGroup>
-            <Toast variant='primary'>Document updated</Toast>
-          </ToastGroup>
-        )
-
-      }
-
     </form>
   );
 };
