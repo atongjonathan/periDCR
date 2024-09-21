@@ -5,10 +5,10 @@ import AuthContext from '../context/AuthContext'
 import { UserContext } from '../context/UserContext'
 
 export const Home = () => {
-  const { periUser } = useContext(UserContext)
+  const { periUser,  setTitle } = useContext(UserContext)
 
   useEffect(() => {
-    document.title = 'Home';
+    setTitle( "Home")
   }, [])
   return (
 

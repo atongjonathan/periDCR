@@ -10,6 +10,7 @@ export const UserProvider = ({ children }) => {
     const { user, authTokens, logoutUser } = useContext(AuthContext); // Get user from AuthContext
     const [periUser, setPeriUser] = useState("Jona"); // Store user data from backend
     const [userLoading, setUserLoading] = useState(true); // Loading state to track API call
+    const [title, setTitle] = useState("")
 
     useEffect(() => {
         async function getUser() {
@@ -43,7 +44,7 @@ export const UserProvider = ({ children }) => {
     }, [user]); // Re-run the effect when `user` changes
 
     return (
-        <UserContext.Provider value={{ periUser, userLoading, setUserLoading }}>
+        <UserContext.Provider value={{ periUser, userLoading, setUserLoading, title, setTitle }}>
             {children}
         </UserContext.Provider>
     );

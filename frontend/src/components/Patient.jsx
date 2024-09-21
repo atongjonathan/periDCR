@@ -79,7 +79,7 @@ export const Patient = () => {
 
   const { showToaster, showNotification } = useContext(MessageContext)
 
-  const { setUserLoading } = useContext(UserContext)
+  const { setUserLoading, setTitle } = useContext(UserContext)
   const navigate = useNavigate()
 
   // Form fields
@@ -173,9 +173,6 @@ export const Patient = () => {
     }
   };
 
-  useEffect(() => {
-    document.title = 'Patient';
-  }, []);
 
   useEffect(() => {
     // Only update the status if it actually needs to change
@@ -225,6 +222,7 @@ export const Patient = () => {
         phone.setValue(data.phone || "");
         email.setValue(data.email || "");
         dob.setValue(data.dob || "");
+        setTitle(data.first_name + ' ' + data.last_name)
 
         setStatus("success");
         // setUserLoading(false)

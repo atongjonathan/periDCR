@@ -75,7 +75,7 @@ export const NewPatient = () => {
     const [loading, setLoading] = useState(false)
 
     const { authTokens } = useContext(AuthContext)
-    const { periUser } = useContext(UserContext)
+    const { periUser, setTitle } = useContext(UserContext)
 
     const navigate = useNavigate()
 
@@ -162,7 +162,7 @@ export const NewPatient = () => {
                     if (backendResponse?.status == 201) {
                         setStatus("success");
                         let patientUrl = "/patient/" + backendResponse.data.name
-                        showNotification("Patient Created", `${patient.first_name} created by ${periUser.first_name + ' ' + periUser.first_name}`, "Prescribe Medication", "/pharmarcy")
+                        showNotification("Patient Created", `${patient.first_name} created by ${periUser.first_name + ' ' + periUser.last_name}`, "Prescribe Medication", "/pharmarcy")
                         navigate(patientUrl)
                     }
                     else {
@@ -218,7 +218,7 @@ export const NewPatient = () => {
     }
 
     useEffect(() => {
-        document.title = 'New Patient'
+        setTitle( "New Patient")
 
     }, [])
 

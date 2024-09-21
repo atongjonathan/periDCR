@@ -11,8 +11,12 @@ import { MessageContext } from '../context/MessageContext'
 export const Common = (props) => {
     let { component } = props
     let { logoutUser } = useContext(AuthContext);
-    let { periUser, userLoading } = useContext(UserContext)
+    let { periUser, userLoading, title } = useContext(UserContext)
     const { variant, message, showToast, notify, header, pText, anchorLink, anchorText } = useContext(MessageContext)
+
+    useEffect(() => {
+        document.title = title
+    })
 
     return (
 

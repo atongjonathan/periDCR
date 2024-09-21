@@ -10,7 +10,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 export const Patients = () => {
     const [patients, setPatients] = useState(null)
     let { authTokens, } = useContext(AuthContext)
-    let { setUserLoading } = useContext(UserContext)
+    let { setUserLoading,  setTitle } = useContext(UserContext)
     const navigate = useNavigate()
 
 
@@ -38,6 +38,7 @@ export const Patients = () => {
         setUserLoading(true)
         getPatients(); // Call the function to fetch user data
         setUserLoading(false)
+        setTitle( "All Patients")
 
 
     }, []); // Re-run the effect when `user` changes
