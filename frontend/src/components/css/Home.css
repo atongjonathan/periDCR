@@ -1,7 +1,8 @@
-:root{
+:root {
   --n-color-accent: #2CD889;
 
 }
+
 @media (max-width: 768px) {
   .stack {
     flex-direction: column;
@@ -18,7 +19,18 @@
   cursor: pointer;
 
 }
-.notification
-{
+
+.notification {
   color: var(--n-color-accent);
+}
+
+.item {
+  cursor: pointer;
+}
+
+.spinner {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  transform: translateX(-50%) translateY(-50%);
 }

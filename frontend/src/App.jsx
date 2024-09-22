@@ -12,6 +12,7 @@ import { NewPatient } from "./components/NewPatient";
 import { Patient } from "./components/Patient";
 import { Patients } from "./components/Patients";
 import { MessageProvider } from "./context/MessageContext";
+import { Stock } from "./components/Stock";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
                 <Route path="/new-patient" element={<PrivateRoute><Common component={<NewPatient></NewPatient>}></Common></PrivateRoute>}></Route>
                 <Route path="/patient/:id" element={<PrivateRoute><Common component={<Patient></Patient>}></Common></PrivateRoute>}></Route>
                 <Route path="/patient" element={<PrivateRoute><Common component={<Patients></Patients>}></Common></PrivateRoute>}></Route>
+                <Route path="/stock" element={<PrivateRoute><Common component={<Stock></Stock>}></Common></PrivateRoute>}></Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/signup" element={<SignUp />}></Route>
               </Routes>

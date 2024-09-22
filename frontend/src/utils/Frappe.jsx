@@ -25,7 +25,7 @@ export const Frappe = () => {
     const createDocument = async (body, doctype) => {
         try {
             const response = await axios.post(`${baseUrl}/api/resource/${doctype}`, body, { headers });
-            return response.data;
+            return response;
         } catch (error) {
             console.error('Error creating document:', error.response?.data || error);
             return { error: error.response?.data?.exc_type || 'Error' };
@@ -39,7 +39,7 @@ export const Frappe = () => {
             method: 'GET',
             headers: {
                 "Accept": "*/*",
-                "Authorization": "Basic NGNmYjYyN2U3ZjViZjQ2OjU0YWI5Njk0MzE2MTViYw=="
+                "Authorization": "Basic " + token
             },
             params: params
 
@@ -52,18 +52,26 @@ export const Frappe = () => {
             return null;
         }
     };
-    const updateDoctype = async (doctype, id, body = {}) => {
-        // let reqOptions = {
-        //     url: `${baseUrl}/api/resource/${doctype}/${id}`,
-        //     method: 'PUT',
-        //     headers: {
-        //         "Accept": "application/json",
-        //         "Content-Type": "application/json",
-        //         "Authorization": "Basic NGNmYjYyN2U3ZjViZjQ2OjU0YWI5Njk0MzE2MTViYw=="
-        //     },
-        //     data: JSON.stringify(body)
+    const getDocList = async (doctype, params = {}) => {
+        let reqOptions = {
+            url: `${baseUrl}/api/resource/${doctype}`,
+            method: 'GET',
+            headers: {
+                "Accept": "*/*",
+                "Authorization": "Basic " + token
+            },
+            params: params
 
-        // }
+        }
+        try {
+            const response = await axios.request(reqOptions);
+            return response.data;
+        } catch (error) {
+            console.log('Error getting doclist:', error.response?.data || error);
+            return null;
+        }
+    };
+    const updateDoctype = async (doctype, id, body = {}) => {
         try {
             const response = await axios.put(`${baseUrl}/api/resource/${doctype}/${id}`, body, { headers });
             return response.data;
@@ -118,7 +126,7 @@ export const Frappe = () => {
             };
         }
         try {
-            const response = await getDoctype('Item', params);
+            const response = await getDocList('Item', params);
             const items = response?.data || [];
 
             for (const item of items) {

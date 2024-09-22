@@ -480,7 +480,7 @@ export const Common = (props) => {
                         <Header slot='header' className='n-color-accent'>
                             <Stack direction='horizontal'>
                                 <Icon name="navigation-dashboard"></Icon>
-                                <h1 className='n-typescale-l'>Welcome</h1>
+                                <h1 className='n-typescale-l'>{title}</h1>
                             </Stack>
                             <Stack>
                                 <Input type='search' hideLabel placeholder='Search' expand ></Input>
