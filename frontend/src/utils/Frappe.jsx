@@ -190,7 +190,8 @@ export const Frappe = () => {
         createPatient,
         getStockData,
         makeStockEntry,
-        createDrugItem
+        createDrugItem,
+        getDocList
     };
 };
 

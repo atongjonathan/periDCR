@@ -1,13 +1,14 @@
-import { Stack, Spinner, Button, ButtonGroup, Table, Card, Modal, Input, Icon, DropdownGroup, DropdownItem } from '@nordhealth/react'
+import { Stack, Spinner, Button, ButtonGroup, Table, Card, Modal, Input, Popout, DropdownGroup, DropdownItem, Icon } from '@nordhealth/react'
 import React, { useEffect, useState, useContext, useRef } from 'react'
 import { UserContext } from '../context/UserContext';
 import Frappe from "../utils/Frappe";
 import { MessageContext } from '../context/MessageContext';
 import { useNavigate } from 'react-router-dom'
-
-
+import debounce from 'lodash.debounce';
+import axios from 'axios';
 
 const frappe = Frappe()
+
 function useField(name, initialValue = "") {
     const [value, setValue] = useState(initialValue);
     const [error, setError] = useState("");
@@ -22,6 +23,7 @@ function useField(name, initialValue = "") {
 
     return {
         setError,
+        setValue,  // Expose setValue so you can use it externally
         valid,
         value,
         focus: () => ref.current?.focus(),
@@ -30,7 +32,7 @@ function useField(name, initialValue = "") {
             value,
             onInput: (e) => {
                 const input = e.target;
-                setValue(input.value);
+                setValue(input.value);  // Correctly update the value
             },
             error,
             ref,
@@ -38,135 +40,234 @@ function useField(name, initialValue = "") {
     };
 }
 export const Stocks = () => {
-    const [items, setItems] = useState(null)
-    let { setTitle } = useContext(UserContext)
-    const [loading, setLoading] = useState(false)
+    const [items, setItems] = useState([]);
+    const { setTitle } = useContext(UserContext);
+    const [loading, setLoading] = useState(false);
+    const [itemsLoading, setItemsLoading] = useState(false);
 
-    const [stockName, setStockName] = useState("")
-    const [stock_uom, setStock_uom] = useState("")
-    const [code, setCode] = useState(null)
-    const [stockValue, setStockValue] = useState(0)
-    const [open, setOpen] = useState(false)
-    const [updated, setUpdated] = useState(false)
+    const [openModal, setOpenModal] = useState(false); // Manage modal visibility
+    const [updated, setUpdated] = useState(false);
+    const [drugs, setDrugs] = useState([]);
+    const [uoms, setUoms] = useState([]);
+    const [open, setOpen] = useState(false);
+    const [drugOpen, setDrugOpen] = useState(false);
+    const [drugCode, setDrugCode] = useState(false);
 
-    const { showToaster, showNotification } = useContext(MessageContext)
-
-
-    const [uoms, setUoms] = useState([])
+    const { showToaster } = useContext(MessageContext);
     const drug = useField("drug");
     const uom = useField("uom");
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
-    const qty = useField("qty");
-    const rate = useField("rate");
-
-
+    // Fetch items on component mount
     useEffect(() => {
         async function getItems() {
             try {
-                const data = await frappe.getStockData()
-                setItems(data); // Set the fetched user data
+                const data = await frappe.getStockData();
+                setItems(data);
             } catch (error) {
-                console.log(error); // Log any error
-            }
-            finally {
-                setLoading(false)
+                console.log(error);
+            } finally {
+                setLoading(false);
             }
         }
-        setLoading(true)
-        getItems(); // Call the function to fetch user data
-        setTitle("All Items")
-
-
+        setLoading(true);
+        getItems();
+        setTitle("All Items");
+        setUoms([1, 2, 3]);
     }, [updated]);
 
-    function showModal(item) {
-        document.getElementById("stockModal").showModal()
-        // setOpen(true)
-        setStockValue(0)
-        setStockName(item.item_name)
-        setStock_uom(item.stock_uom)
-        setCode(item.item_code)
-    }
-    async function addStock(e) {
-        e.preventDefault()
-        const formData = new FormData(e.target)
-        const formObject = Object.fromEntries(formData.entries())
-        if (qty.value == '' || rate.value == '') {
-            setOpen(true)
-            if (rate.value == '') {
-                rate.setError("This field is required");
-                rate.focus()
-            }
 
-            if (qty.value == '') {
-                setOpen(true)
-                qty.setError("This field is required");
-                qty.focus()
-            }
+    function showModal() {
+        setOpenModal(false);
+        setOpenModal(true);  // Open the modal by updating state
+    }
+    function closeModal() {
+        setOpen(false)
+        setOpenModal(false);
+        // drug.setValue('');  // Properly reset the input field
+        // uom.setValue('');   // Reset UOM input as well
+    }
+    async function addDrug(e) {
+        e.preventDefault();
+        setOpen(false)
+
+        // Check for validation errors
+        if (drug.value === '') {
+            drug.setError("This field is required");
+            // setOpenModal(true); // Ensure the modal remains open if there's an error
+        }
+        if (uom.value === '') {
+            uom.setError("This field is required");
+            // setOpenModal(true); // Keep the modal open for fixing errors
         }
 
-        else {
-            setOpen(false)
-            const response = await frappe.makeStockEntry(code, formObject.qty, formObject.rate)
-            if (response.status == 200) {
-                setUpdated(true)
-                showToaster("success", stockName + " stocks updated successfully")
+        if (drug.value && uom.value) {
+
+            const response = await frappe.createDrugItem(drugCode, drug.value, uom.value)
+
+            if (response?.status == 200) {
+                closeModal()
+                showToaster("default", drug.value + " added successfully")
+            }
+            else if (response?.error == 'DuplicateEntryError') {
+                drug.setError(drug.value + " already exists");
+            }
+
+            else if (response?.error == "LinkValidationError") {
+                uom.setError("Invalid UOM provided");
 
             }
-            else {
-                showToaster("danger", stockName + " update failed")
+            else
+            {
+                closeModal()
+                showToaster("danger", "Something went wrong")
             }
 
         }
+
+
     }
 
-    // async function getUoms() {
-    //     setUoms([1, 2, 3])
+    const handleUomInput = (e) => {
+        const value = e.target.value;
+        uom.setValue(value);  // Update using setValue from useField
+        getUoms(value);  // Call debounced function
+    };
+    const handleDrugInput = (e) => {
+        const value = e.target.value;
+        drug.setValue(value);  // Update using setValue from useField
+        getDrugs(value);
+    }
 
-    // }
+    const getUoms = debounce(async (value) => {
+        setItemsLoading(true)
+        setOpen(true);
+        const response = await frappe.getDocList("UOM", {
+            filters: JSON.stringify([["name", "like", `%${value}%`]])  // Correct filter
+        });
+        setUoms(response.data);
+        setItemsLoading(false)
+    }, 300); // 300ms delay
+
+
+    const getDrugs = debounce(async (value) => {
+        setDrugOpen(true);
+        let headersList = {
+            "Accept": "*/*",
+        }
+        let reqOptions = {
+            url: `https://rxnav.nlm.nih.gov/REST/Prescribe/drugs.json?name=${value}`,
+            method: "GET",
+            headers: headersList,
+        }
+        if (value) {
+            setItemsLoading(true)
+            let response = await axios.request(reqOptions);
+            let groups = response?.data?.drugGroup?.conceptGroup;
+            if (groups) {
+                let data = [];
+                groups.forEach(element => {
+                    if (element.conceptProperties) {
+                        element.conceptProperties.forEach(prop => {
+                            data.push(prop);  // Push the relevant drug data
+                        });
+                    }
+                });
+                setDrugs(data);  // Ensure you're setting a non-empty array
+
+            }
+
+        }
+        setItemsLoading(false)
+    }, 300); // 300ms delay
 
     return (
         <Stack>
-
-
             <Stack className="n-padding-i-l n-padding-b-l">
-
                 <Card padding='none'>
                     <h2 slot="header">Drugs</h2>
-                    <Button slot='header-end' id='drugBtn' type="button" variant="primary" onClick={() => drugModal.showModal()}>Add Drug</Button>
-                    <Modal id="drugModal" aria-labelledby="drugModal">
+                    <Button slot='header-end' type="button" variant="primary" onClick={showModal}>Add Drug</Button>
+                    <Modal id="drugModal" size='l' aria-labelledby="drugModal" open={openModal} onClose={closeModal}>
                         <h2 id="title" slot="header">Add Drug</h2>
-                        <form method="dialog" id="drugForm">
-                            <Stack>
-                                <Stack direction='horizontal'>
-                                    <Stack gap='xs'>
-                                        <Input type='search' label='Drug' name='drug' expand required {...drug.inputProps}></Input>
-                                        <DropdownGroup>
-                                            <DropdownItem>Hello</DropdownItem>
-                                        </DropdownGroup>
-                                    </Stack>
-                                    <Stack gap='xs'>
-                                        <Input type='search' label='Unit of Measure' name='uom' expand required {...uom.inputProps}></Input>
-                                        <DropdownGroup>
-                                            {uoms.length > 0 ?
-                                                uoms.map((uom, idx) => <DropdownItem key={idx}>{uom}</DropdownItem>)
-                                                : <DropdownItem>Hello</DropdownItem>}
+                        <form action="post" id="drugForm" onSubmit={addDrug}>
+                            <Stack direction="horizontal">
+                                <Stack gap='xs'>
+                                    <Input
+                                        type="search"
+                                        label="Drug"
+                                        name="drug"
+                                        expand
+                                        required
+                                        {...drug.inputProps}
+                                        onInput={handleDrugInput}
+                                    />
+                                    <Stack className={drugOpen ? '' : 'close'}>
 
+                                        {itemsLoading ? <DropdownGroup><DropdownItem className="loader-line"></DropdownItem></DropdownGroup> :
 
-                                        </DropdownGroup>
+                                            drugs.length == 0 ? <DropdownItem slot='start'>No results</DropdownItem> :
+                                                <DropdownGroup>
+                                                    {
+                                                        drugs.map((item, idx) => {
+                                                            return (
+                                                                <DropdownGroup>
+                                                                    <DropdownItem title={item.name} key={item.rxcui} onClick={() => {
+                                                                        showModal();
+                                                                        drug.setValue(item.name);
+                                                                        setDrugCode(item.rxcui)
+                                                                        setDrugOpen(false);
+                                                                    }}>
+                                                                        {item.name}
+                                                                    </DropdownItem>
+                                                                </DropdownGroup>
+                                                            );
+                                                        })
+                                                    }
+                                                </DropdownGroup>
+
+                                        }
+
                                     </Stack>
+
+                                </Stack>
+                                <Stack gap='xs'>
+                                    <Input
+                                        type="search"
+                                        label="UOM"
+                                        name="uom"
+                                        expand
+                                        required
+                                        {...uom.inputProps}
+                                        onInput={handleUomInput}  // Use debounced handler
+                                    />
+                                    {uoms.length > 0 && (
+                                        <Stack className={open ? '' : 'close'}>
+                                            <DropdownGroup>
+                                                {uoms.slice(0, 11).map((item, idx) => (
+                                                    <DropdownItem key={idx} onClick={() => {
+                                                        showModal()
+                                                        uom.setValue(item.name)
+                                                        setOpen(false)
+                                                    }}>{item.name}</DropdownItem>
+                                                ))}
+                                            </DropdownGroup>
+
+                                        </Stack>
+
+                                    )}
                                 </Stack>
                             </Stack>
+
                         </form>
-                        <ButtonGroup slot='footer' variant='spaced'>
-                            <Button expand form='drugForm'>Cancel</Button>
-                            <Button variant='primary' expand form='drugForm'>Add</Button>
+                        <ButtonGroup slot="footer" variant="spaced">
+                            <Button type="button" expand form="drugForm" onClick={closeModal}>Cancel</Button>
+                            <Button type="submit" variant="primary" expand form="drugForm">Add</Button>
                         </ButtonGroup>
                     </Modal>
-                   
-                    {loading ? <div className="spinner"><Spinner size="l" className='spinner'></Spinner></div> :
+                    {loading ? (
+                        <div className="spinner"><Spinner size="l" className="spinner" /></div>
+                    ) : (
                         <Table>
                             <table>
                                 <thead>
@@ -179,38 +280,26 @@ export const Stocks = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {
-                                        items?.length == 0 ? (
-                                            <tr>
-                                                <td><h1>No Items yet</h1>
-                                                </td>
-
+                                    {items?.length === 0 ? (
+                                        <tr><td colSpan="5"><h1>No Items yet</h1></td></tr>
+                                    ) : (
+                                        items?.map((item) => (
+                                            <tr key={item.item_code} onClick={() => navigate(`/stock/${item.item_code}`)}>
+                                                <td>{item.item_code}</td>
+                                                <td>{item.item_name}</td>
+                                                <td>{item.stockDetails.qty}</td>
+                                                <td>{item.stock_uom}</td>
+                                                <td>{item.stockDetails.value}</td>
                                             </tr>
-                                        ) :
-
-                                            items?.map((item) => {
-                                                return (
-                                                    <tr title={item.item_name} className='item' key={item.item_code} onClick={() => navigate("/stock/" + item.item_code)}>
-                                                        <td className='n-table-ellipsis'>{item.item_code}</td>
-                                                        <td className=''>{item.item_name}</td>
-                                                        <td>{item.stockDetails.qty}</td>
-                                                        <td>{item.stock_uom}</td>
-                                                        <td>{item.stockDetails.value}</td>
-                                                    </tr>
-                                                )
-
-                                            })
-                                    }
-
-
-
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </Table>
-                    }
+                    )}
                 </Card>
-
             </Stack>
         </Stack>
-    )
+    );
+
 }
